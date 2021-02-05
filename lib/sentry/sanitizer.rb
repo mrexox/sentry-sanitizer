@@ -1,8 +1,11 @@
-require "sentry/sanitizer/version"
+require 'sentry-ruby'
+require 'sentry/integrable'
+require 'sentry/sanitizer/configuration'
 
 module Sentry
   module Sanitizer
-    class Error < StandardError; end
-    # Your code goes here...
+    extend Integrable
+
+    register_integration name: 'sanitizer', version: Sentry::Sanitizer::VERSION
   end
 end
