@@ -29,8 +29,8 @@ module Sentry
       end
 
       def sanitize_request(request)
-        request.data = sanitize_hash(request.data) if fields
-        request.headers = sanitize_headers(request.headers) if http_headers
+        request.data = sanitize_hash(request.data) unless fields.size.zero?
+        request.headers = sanitize_headers(request.headers) unless http_headers.size.zero?
         request.cookies = sanitize_cookies(request.cookies) if cookies
       end
 
