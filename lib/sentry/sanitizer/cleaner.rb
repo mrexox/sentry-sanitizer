@@ -24,18 +24,18 @@ module Sentry
       def call(event)
         if event.is_a?(Sentry::Event)
           event.request = sanitize_request(event.request) if event.request
-          event.extra = sanitize_hash(event.extra) if event.extra
+          event.extra = sanitize_data(event.extra) if event.extra
         end
       end
 
       def sanitize_request(request)
-        request.data = sanitize_hash(request.data) unless fields.size.zero?
+        request.data = sanitize_data(request.data) unless fields.size.zero?
         request.headers = sanitize_headers(request.headers) unless http_headers.size.zero?
         request.cookies = sanitize_cookies(request.cookies) if cookies
       end
 
-      def sanitize_hash(hash)
-        return if hash.blank?
+      def sanitize_data(hash)
+        return unless hash.is_a? Hash
 
         sanitize_value(hash, nil)
       end
