@@ -8,7 +8,11 @@ module Sentry
     prepend Sentry::Sanitizer::ConfigurationMixin
 
     add_post_initialization_callback do
-      self.before_send = Sentry::Sanitizer::Cleaner::HOOK
+      self.before_send = ->(event, hint) do
+        Sentry::Sanitizer::Cleaner.new(Sentry.configuration.sanitize).call(event)
+
+        event
+      end
     end
   end
 

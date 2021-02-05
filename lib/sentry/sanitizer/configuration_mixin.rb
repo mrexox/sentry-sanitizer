@@ -13,8 +13,8 @@ module Sentry
         @before_send_hook_list << value
 
         @before_send = ->(event, hint) {
-          @before_send_hook_list.inject do |_, hook|
-            hook.call(event, hint)
+          @before_send_hook_list.each do |hook|
+            event = hook.call(event, hint)
           end
 
           event

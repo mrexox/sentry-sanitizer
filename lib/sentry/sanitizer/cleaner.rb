@@ -1,12 +1,6 @@
 module Sentry
   module Sanitizer
     class Cleaner
-      HOOK = ->(event, hint) do
-        Sentry::Sanitizer::Cleaner.new(Sentry.configuration.sanitize).call(event)
-
-        event
-      end.freeze
-
       DEFAULT_MASK = '[FILTERED]'.freeze
       DEFAULT_SENSITIVE_HEADERS = %w[
         Authorization
@@ -23,7 +17,7 @@ module Sentry
 
       def call(event)
         if event.is_a?(Sentry::Event)
-          event.request = sanitize_request(event.request) if event.request
+          sanitize_request(event.request) if event.request
           event.extra = sanitize_data(event.extra) if event.extra
         end
       end
