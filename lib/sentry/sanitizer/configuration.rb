@@ -1,3 +1,4 @@
+require 'sentry/configuration'
 require 'sentry/sanitizer/cleaner'
 
 module Sentry
@@ -5,7 +6,9 @@ module Sentry
   class Configuration
     # Allow adding multiple hooks for this extension
     def before_send=(value)
-      super
+      unless value == false || value.respond_to?(:call)
+        raise ArgumentError, "before_send must be callable (or false to disable)"
+      end
 
       return value if value == false
 
@@ -31,7 +34,7 @@ module Sentry
       sanitize.fields = fields
     end
 
-    def sanitize_http_headers(headers)
+    def sanitize_http_headers=(headers)
       unless headers.is_a? Array
         raise ArgumentError, 'sanitize_http_headers must be array'
       end
@@ -39,7 +42,7 @@ module Sentry
       sanitize.http_headers = headers
     end
 
-    def sanitize_cookies(cookies)
+    def sanitize_cookies=(cookies)
       unless [TrueClass, FalseClass].include?(cookies.class)
         raise ArgumentError, 'sanitize_cookies must be boolean'
       end

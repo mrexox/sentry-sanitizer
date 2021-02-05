@@ -13,7 +13,7 @@ module Sentry
         X-Xsrf-Token
       ].freeze
 
-      private_constant :SENSITIVE_HEADERS
+      private_constant :DEFAULT_SENSITIVE_HEADERS
 
       def initialize(config)
         @fields = config.fields || []
