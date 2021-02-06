@@ -1,12 +1,14 @@
 PATH
   remote: .
   specs:
-    sentry-sanitizer (0.1.0)
+    sentry-sanitizer (0.2.0)
       sentry-ruby (~> 4.2.0)
 
 GEM
   remote: https://rubygems.org/
   specs:
+    byebug (11.1.3)
+    coderay (1.1.3)
     concurrent-ruby (1.1.8)
     diff-lcs (1.4.4)
     faraday (1.3.0)
@@ -14,7 +16,15 @@ GEM
       multipart-post (>= 1.2, < 3)
       ruby2_keywords
     faraday-net_http (1.0.1)
+    method_source (1.0.0)
     multipart-post (2.1.1)
+    pry (0.13.1)
+      coderay (~> 1.1)
+      method_source (~> 1.0)
+    pry-byebug (3.9.0)
+      byebug (~> 11.0)
+      pry (~> 0.13.0)
+    rack (2.2.3)
     rake (10.5.0)
     rspec (3.10.0)
       rspec-core (~> 3.10.0)
@@ -43,6 +53,8 @@ PLATFORMS
 
 DEPENDENCIES
   bundler (>= 1.17)
+  pry-byebug
+  rack
   rake (~> 10.0)
   rspec (~> 3.0)
   sentry-sanitizer!

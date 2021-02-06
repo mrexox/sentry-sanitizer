@@ -20,34 +20,6 @@ module Sentry
           event
         }
       end
-
-      def sanitize
-        @sanitize ||= Sentry::Sanitizer::Configuration.new
-      end
-
-      def sanitize_fields=(fields)
-        unless fields.is_a? Array
-          raise ArgumentError, 'sanitize_fields must be array'
-        end
-
-        sanitize.fields = fields
-      end
-
-      def sanitize_http_headers=(headers)
-        unless headers.is_a? Array
-          raise ArgumentError, 'sanitize_http_headers must be array'
-        end
-
-        sanitize.http_headers = headers
-      end
-
-      def sanitize_cookies=(cookies)
-        unless [TrueClass, FalseClass].include?(cookies.class)
-          raise ArgumentError, 'sanitize_cookies must be boolean'
-        end
-
-        sanitize.cookies = cookies
-      end
     end
   end
 end

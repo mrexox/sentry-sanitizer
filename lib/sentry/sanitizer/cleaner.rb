@@ -11,44 +11,73 @@ module Sentry
 
       def initialize(config)
         @fields = config.fields || []
-        @http_headers = config.http_headers || []
-        @cookies = config.cookies || false
+        @http_headers = config.http_headers || false
+        @do_cookies = config.cookies || false
       end
 
       def call(event)
         if event.is_a?(Sentry::Event)
-          sanitize_request(event.request) if event.request
-          event.extra = sanitize_data(event.extra) if event.extra
+          sanitize_request(event, :object) if event.request
+          event.extra = sanitize_data(event.extra)
+        elsif event.is_a?(Hash)
+          sanitize_request(event, :stringified_hash) if event['request']
+          sanitize_request(event, :symbolized_hash) if event[:request]
+          event['extra'] = sanitize_data(event['extra']) if event['extra']
+          event[:extra] = sanitize_data(event[:extra]) if event[:extra]
         end
       end
 
-      def sanitize_request(request)
-        request.data = sanitize_data(request.data) unless fields.size.zero?
-        request.headers = sanitize_headers(request.headers) unless http_headers.size.zero?
-        request.cookies = sanitize_cookies(request.cookies) if cookies
+      def sanitize_request(event, type)
+        case type
+        when :object
+          event.request.data = sanitize_data(event.request.data)
+          event.request.headers = sanitize_headers(event.request.headers)
+          event.request.cookies = sanitize_cookies(event.request.cookies)
+        when :stringified_hash
+          event['request']['data'] = sanitize_data(event['request']['data'])
+          event['request']['headers'] = sanitize_headers(event['request']['headers'])
+          event['request']['cookies'] = sanitize_cookies(event['request']['cookies'])
+        when :symbolized_hash
+          event[:request][:data] = sanitize_data(event[:request][:data])
+          event[:request][:headers] = sanitize_headers(event[:request][:headers])
+          event[:request][:cookies] = sanitize_cookies(event[:request][:cookies])
+        end
       end
 
       def sanitize_data(hash)
-        return unless hash.is_a? Hash
+        return hash unless hash.is_a? Hash
+        return hash unless fields.size.positive?
 
         sanitize_value(hash, nil)
       end
 
       private
 
-      attr_reader :fields, :http_headers, :cookies
+      attr_reader :fields, :http_headers, :do_cookies
 
       # Sanitize specified headers
       def sanitize_headers(headers)
-        headers.keys.select { |key| key.match?(sensitive_headers) }.each do |key|
-          headers[key] = DEFAULT_MASK
-        end
+        case headers
+        when TrueClass
+          headers.transform_values { DEFAULT_MASK }
+        when Hash
+          return headers unless http_headers.size.positive?
 
-        headers
+          headers.keys.select { |key| key.match?(sensitive_headers) }.each do |key|
+            headers[key] = DEFAULT_MASK
+          end
+
+          headers
+        else
+          headers
+        end
       end
 
       # Sanitize all cookies
       def sanitize_cookies(cookies)
+        return cookies unless cookies.is_a? Hash
+        return cookies unless do_cookies
+
         cookies.transform_values { DEFAULT_MASK }
       end
 
