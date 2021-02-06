@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.email         = ['mrexox@outlook.com']
 
   spec.summary       = %q{Sanitizing middleware for sentry-ruby gem}
-  spec.description   = %q{Add missing sanitizing support for sentry-ruby (previous sentry-rav)}
+  spec.description   = %q{Add missing sanitizing support for sentry-ruby (previous sentry-raven)}
   spec.homepage      = 'https://github.com/mrexox/sentry-sanitizer'
   spec.license       = 'BSD'
 
@@ -26,6 +26,10 @@ Gem::Specification.new do |spec|
   end
 
   spec.require_paths = ['lib']
+
+  # Codecov
+  spec.add_development_dependency 'codecov'
+  spec.add_development_dependency 'simplecov', '~> 0.18.5'
 
   spec.add_development_dependency 'bundler', '>= 1.17'
   spec.add_development_dependency 'rake', '~> 10.0'

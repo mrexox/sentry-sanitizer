@@ -29,5 +29,9 @@ jobs:
 
       - name: Run specs
         run: |
-          bundle install --jobs 4 --retry 3 --no-cache --frozen
+          bundle install --jobs 4 --retry 3 --no-cache
           bundle exec rspec
+
+      - uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}

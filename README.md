@@ -1,3 +1,7 @@
+![CI](https://github.com/mrexox/sentry-sanitizer/workflows/CI/badge.svg)
+[![Gem Version](https://badge.fury.io/rb/sentry-sanitizer.svg)](https://badge.fury.io/rb/sentry-sanitizer)
+[![codecov](https://codecov.io/gh/mrexox/sentry-sanitizer/branch/master/graph/badge.svg?token=QW93HCVI0W)](https://codecov.io/gh/mrexox/sentry-sanitizer)
+
 # sentry-sanitizer: sanitizing extension for sentry-ruby
 
 This gem claims to add sanitizing support to [sentry-ruby](https://rubygems.org/gems/sentry-ruby) gem.
