@@ -1,15 +1,14 @@
 # Sentry::Sanitizer
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/sentry/sanitizer`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
 
 ## Installation
+
+:warning: Please, don't use 0.1.* version as it was experimental and not usable at all.
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'sentry-sanitizer'
+gem 'sentry-sanitizer', '>= 0.2.0'
 ```
 
 And then execute:
@@ -22,7 +21,30 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Add following lines to your Sentry configuration:
+
+```
+Sentry.init do |config|
+  # ... your configuration
+
+  # If using Rails
+  config.sanitize.fields = Rails.application.config.filter_parameters
+
+  # You can also pass custom array
+  config.sanitize.fields = %w[password super_secret_token]
+
+  # HTTP headers can be sanitized too (it is case insensitive)
+  config.sanitize.http_headers = %w[Authorization X-Xsrf-Token]
+
+  # You can sanitize all HTTP headers with setting `true` value
+  config.sanitize.http_headers = true
+
+  # You can sanitize all cookies with this setting
+  config.sanitize.cookies = true
+
+  # ...
+end
+```
 
 ## Development
 
@@ -32,8 +54,8 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/sentry-sanitizer.
+Bug reports and pull requests are welcome on GitHub at https://github.com/mrexox/sentry-sanitizer.
 
 ## License
 
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+The gem is available as open source under the terms of the [BSD-3-Clause License](https://opensource.org/licenses/BSD-3-Clause).
