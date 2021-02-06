@@ -1,9 +1,18 @@
-# Sentry::Sanitizer
+# sentry-sanitizer: sanitizing extension for sentry-ruby
 
+This gem claims to add sanitizing support to [sentry-ruby](https://rubygems.org/gems/sentry-ruby) gem.
+
+[sentry-raven](https://rubygems.org/gems/sentry-raven) gem had this apportunity but it is no longer supported. Moving from `sentry-raven` to `sentry-ruby` can surprise you with missing this ability. But you can still use `sentry-sanitizer` (with a little change to configuration).
+
+Currently this gem provides following features
+- Sanitizing POST params
+- Sanitizing HTTP headers
+- Sanitizing cookies
+- Sanitizing extras ([see](https://docs.sentry.io/platforms/ruby/enriching-events/context/#additional-data) `Sentry.set_extras`)
 
 ## Installation
 
-:warning: Please, don't use 0.1.* version as it was experimental and not usable at all.
+:warning: Please, don't use `0.1.*` version as it was experimental and not usable at all.
 
 Add this line to your application's Gemfile:
 
@@ -23,7 +32,7 @@ Or install it yourself as:
 
 Add following lines to your Sentry configuration:
 
-```
+```ruby
 Sentry.init do |config|
   # ... your configuration
 
