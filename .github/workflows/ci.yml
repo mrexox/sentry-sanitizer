@@ -1,0 +1,33 @@
+name: CI
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  rspec:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - { ruby_version: 2.4 }
+          - { ruby_version: 2.5 }
+          - { ruby_version: 2.4 }
+          - { ruby_version: 2.7 }
+          - { ruby_version: 3.0 }
+          - { ruby_version: jruby }
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set up Ruby ${{ matrix.ruby_version }}
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler: 2
+          ruby-version: ${{ matrix.ruby_version }}
+
+      - name: Run specs
+        run: |
+          bundle install --jobs 4 --retry 3 --no-cache --frozen
+          bundle exec rspec
