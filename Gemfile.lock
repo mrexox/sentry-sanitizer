@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    sentry-sanitizer (0.2.0)
+    sentry-sanitizer (0.2.1)
       sentry-ruby (~> 4.2.0)
 
 GEM
