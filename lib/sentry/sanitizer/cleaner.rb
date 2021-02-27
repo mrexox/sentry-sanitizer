@@ -11,7 +11,7 @@ module Sentry
 
       def initialize(config)
         @fields = config.fields || []
-        @http_headers = config.http_headers || false
+        @http_headers = config.http_headers || DEFAULT_SENSITIVE_HEADERS
         @do_cookies = config.cookies || false
       end
 
@@ -57,13 +57,14 @@ module Sentry
 
       # Sanitize specified headers
       def sanitize_headers(headers)
-        case headers
+        case http_headers
         when TrueClass
           headers.transform_values { DEFAULT_MASK }
-        when Hash
+        when Array
           return headers unless http_headers.size.positive?
+          http_headers_regex = sensitive_regexp(http_headers)
 
-          headers.keys.select { |key| key.match?(sensitive_headers) }.each do |key|
+          headers.keys.select { |key| key.match?(http_headers_regex) }.each do |key|
             headers[key] = DEFAULT_MASK
           end
 
@@ -118,10 +119,6 @@ module Sentry
 
       def sensitive_fields
         @sensitive_fields ||= sensitive_regexp(fields)
-      end
-
-      def sensitive_headers
-        @sensitive_headers ||= sensitive_regexp(DEFAULT_SENSITIVE_HEADERS | http_headers)
       end
 
       def sensitive_regexp(fields)
