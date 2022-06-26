@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.5.0
+
+- Bump `sentry-ruby` till the latest version
+
 ## 0.4.0
 
 - Support `nil` instead of `false` in `before_send=` setting
