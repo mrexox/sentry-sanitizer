@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    sentry-sanitizer (0.5.0)
+    sentry-sanitizer (0.5.1)
       sentry-ruby (~> 5.3)
 
 GEM
@@ -27,11 +27,8 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.11.0)
     rspec-support (3.11.0)
-    sentry-ruby (5.3.1)
+    sentry-ruby (5.4.1)
       concurrent-ruby (~> 1.0, >= 1.0.2)
-      sentry-ruby-core (= 5.3.1)
-    sentry-ruby-core (5.3.1)
-      concurrent-ruby
     simplecov (0.18.5)
       docile (~> 1.1)
       simplecov-html (~> 0.11)
