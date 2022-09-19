@@ -56,6 +56,9 @@ Sentry.init do |config|
   # You can sanitize all cookies with this setting
   config.sanitize.cookies = true
 
+  # You can sanitize query string params for GET requests
+  config.sanitize.query_string = true
+
   # ...
 end
 ```
