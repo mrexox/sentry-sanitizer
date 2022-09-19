@@ -12,6 +12,7 @@ Currently this gem provides following features
 - [x] Sanitizing POST params
 - [x] Sanitizing HTTP headers
 - [x] Sanitizing cookies
+- [x] Sanitizing query string
 - [x] Sanitizing extras ([see](https://docs.sentry.io/platforms/ruby/enriching-events/context/#additional-data) `Sentry.set_extras`)
 
 ## Installation

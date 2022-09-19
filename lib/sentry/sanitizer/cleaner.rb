@@ -13,6 +13,7 @@ module Sentry
         @fields = config.fields || []
         @http_headers = config.http_headers || DEFAULT_SENSITIVE_HEADERS
         @do_cookies = config.cookies || false
+        @do_query_string = config.query_string || false
       end
 
       def call(event)
@@ -33,14 +34,17 @@ module Sentry
           event.request.data = sanitize_data(event.request.data)
           event.request.headers = sanitize_headers(event.request.headers)
           event.request.cookies = sanitize_cookies(event.request.cookies)
+          event.request.query_string = sanitize_query_string(event.request.query_string)
         when :stringified_hash
           event['request']['data'] = sanitize_data(event['request']['data'])
           event['request']['headers'] = sanitize_headers(event['request']['headers'])
           event['request']['cookies'] = sanitize_cookies(event['request']['cookies'])
+          event['request']['query_string'] = sanitize_query_string(event['request']['query_string'])
         when :symbolized_hash
           event[:request][:data] = sanitize_data(event[:request][:data])
           event[:request][:headers] = sanitize_headers(event[:request][:headers])
           event[:request][:cookies] = sanitize_cookies(event[:request][:cookies])
+          event[:request][:query_string] = sanitize_query_string(event[:request][:query_string])
         end
       end
 
@@ -53,7 +57,7 @@ module Sentry
 
       private
 
-      attr_reader :fields, :http_headers, :do_cookies
+      attr_reader :fields, :http_headers, :do_cookies, :do_query_string
 
       # Sanitize specified headers
       def sanitize_headers(headers)
@@ -76,10 +80,24 @@ module Sentry
 
       # Sanitize all cookies
       def sanitize_cookies(cookies)
-        return cookies unless cookies.is_a? Hash
         return cookies unless do_cookies
+        return cookies unless cookies.is_a? Hash
 
         cookies.transform_values { DEFAULT_MASK }
+      end
+
+      def sanitize_query_string(query_string)
+        return query_string unless do_query_string
+        return query_string unless query_string.is_a? String
+
+        sanitized_array = query_string.split('&').map do |kv_pair|
+          k, v = kv_pair.split('=')
+          new_v = sanitize_string(k, v)
+
+          "#{k}=#{new_v}"
+        end
+
+        sanitized_array.join('&')
       end
 
       def sanitize_value(value, key)

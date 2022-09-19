@@ -52,4 +52,17 @@ RSpec.describe Sentry::Sanitizer::Configuration do
       expect { subject.cookies = :a }.to raise_error(ArgumentError)
     end
   end
+
+  context 'configured query_string' do
+    it 'is property configured' do
+      subject.query_string = true
+
+      is_expected.to be_configured
+      expect(subject.query_string).to eq true
+    end
+
+    it 'raises error on mistake' do
+      expect { subject.query_string = :a }.to raise_error(ArgumentError)
+    end
+  end
 end

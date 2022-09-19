@@ -24,10 +24,10 @@ module Sentry
 
   module Sanitizer
     class Configuration
-      attr_accessor :fields, :http_headers, :cookies
+      attr_accessor :fields, :http_headers, :cookies, :query_string
 
       def configured?
-        [fields, http_headers, cookies].any? { |setting| !setting.nil? }
+        [fields, http_headers, cookies, query_string].any? { |setting| !setting.nil? }
       end
 
       def fields=(fields)
@@ -48,10 +48,18 @@ module Sentry
 
       def cookies=(cookies)
         unless [TrueClass, FalseClass].include?(cookies.class)
-          raise ArgumentError, 'sanitize_cookies must be boolean'
+          raise ArgumentError, 'cookies must be boolean'
         end
 
         @cookies = cookies
+      end
+
+      def query_string=(query_string)
+        unless [TrueClass, FalseClass].include?(query_string.class)
+          raise ArgumentError, 'query_string must be boolean'
+        end
+
+        @query_string = query_string
       end
     end
   end
