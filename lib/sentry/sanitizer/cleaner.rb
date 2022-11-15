@@ -14,37 +14,38 @@ module Sentry
         @http_headers = config.http_headers || DEFAULT_SENSITIVE_HEADERS
         @do_cookies = config.cookies || false
         @do_query_string = config.query_string || false
+        @mask = config.mask || DEFAULT_MASK
       end
 
       def call(event)
         if event.is_a?(Sentry::Event)
-          sanitize_request(event, :object) if event.request
-          event.extra = sanitize_data(event.extra)
+          sanitize(event, :object) if event.request
         elsif event.is_a?(Hash)
-          sanitize_request(event, :stringified_hash) if event['request']
-          sanitize_request(event, :symbolized_hash) if event[:request]
-          event['extra'] = sanitize_data(event['extra']) if event['extra']
-          event[:extra] = sanitize_data(event[:extra]) if event[:extra]
+          sanitize(event, :stringified_hash) if event['request']
+          sanitize(event, :symbolized_hash) if event[:request]
         end
       end
 
-      def sanitize_request(event, type)
+      def sanitize(event, type)
         case type
         when :object
           event.request.data = sanitize_data(event.request.data)
           event.request.headers = sanitize_headers(event.request.headers)
           event.request.cookies = sanitize_cookies(event.request.cookies)
           event.request.query_string = sanitize_query_string(event.request.query_string)
+          event.extra = sanitize_data(event.extra)
         when :stringified_hash
           event['request']['data'] = sanitize_data(event['request']['data'])
           event['request']['headers'] = sanitize_headers(event['request']['headers'])
           event['request']['cookies'] = sanitize_cookies(event['request']['cookies'])
           event['request']['query_string'] = sanitize_query_string(event['request']['query_string'])
+          event['extra'] = sanitize_data(event['extra'])
         when :symbolized_hash
           event[:request][:data] = sanitize_data(event[:request][:data])
           event[:request][:headers] = sanitize_headers(event[:request][:headers])
           event[:request][:cookies] = sanitize_cookies(event[:request][:cookies])
           event[:request][:query_string] = sanitize_query_string(event[:request][:query_string])
+          event[:extra] = sanitize_data(event[:extra])
         end
       end
 
@@ -57,19 +58,23 @@ module Sentry
 
       private
 
-      attr_reader :fields, :http_headers, :do_cookies, :do_query_string
+      attr_reader :fields,
+                  :http_headers,
+                  :do_cookies,
+                  :do_query_string,
+                  :mask
 
       # Sanitize specified headers
       def sanitize_headers(headers)
         case http_headers
         when TrueClass
-          headers.transform_values { DEFAULT_MASK }
+          headers.transform_values { mask }
         when Array
           return headers unless http_headers.size.positive?
           http_headers_regex = sensitive_regexp(http_headers)
 
           headers.keys.select { |key| key.match?(http_headers_regex) }.each do |key|
-            headers[key] = DEFAULT_MASK
+            headers[key] = mask
           end
 
           headers
@@ -83,7 +88,7 @@ module Sentry
         return cookies unless do_cookies
         return cookies unless cookies.is_a? Hash
 
-        cookies.transform_values { DEFAULT_MASK }
+        cookies.transform_values { mask }
       end
 
       def sanitize_query_string(query_string)
@@ -115,7 +120,7 @@ module Sentry
 
       def sanitize_hash(key, value)
         if key&.match?(sensitive_fields)
-          DEFAULT_MASK
+          mask
         elsif value.frozen?
           value.merge(value) { |k, v| sanitize_value(v, k) }
         else
@@ -132,7 +137,7 @@ module Sentry
       end
 
       def sanitize_string(key, value)
-        key&.match?(sensitive_fields) ? DEFAULT_MASK : value
+        key&.match?(sensitive_fields) ? mask : value
       end
 
       def sensitive_fields

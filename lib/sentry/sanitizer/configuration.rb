@@ -24,10 +24,19 @@ module Sentry
 
   module Sanitizer
     class Configuration
-      attr_accessor :fields, :http_headers, :cookies, :query_string
+      attr_accessor :fields,
+                    :http_headers,
+                    :cookies,
+                    :query_string,
+                    :mask
 
       def configured?
-        [fields, http_headers, cookies, query_string].any? { |setting| !setting.nil? }
+        [
+          fields,
+          http_headers,
+          cookies,
+          query_string
+        ].any? { |setting| !setting.nil? }
       end
 
       def fields=(fields)
@@ -60,6 +69,14 @@ module Sentry
         end
 
         @query_string = query_string
+      end
+
+      def mask=(mask)
+        unless mask.is_a?(String)
+          raise ArgumentError, 'mask must be string'
+        end
+
+        @mask = mask
       end
     end
   end

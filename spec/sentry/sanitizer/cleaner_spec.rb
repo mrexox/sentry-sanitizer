@@ -293,4 +293,68 @@ RSpec.describe Sentry::Sanitizer::Cleaner do
       end
     end
   end
+
+  context 'when special mask provided' do
+    let(:mask) { '<<SECRET>>' }
+
+    before do
+      Sentry.init do |config|
+        config.sanitize.fields = [:password, 'token']
+        config.sanitize.http_headers = ['Custom-Header']
+        config.sanitize.cookies = true
+        config.sanitize.query_string = true
+        config.sanitize.mask = mask
+        config.send_default_pii = true
+      end
+
+      Sentry.get_current_scope.set_rack_env(
+        ::Rack::MockRequest.env_for('/', {
+          method: 'GET',
+          params: {
+            'password' => 'SECRET',
+            'token' => 'SECRET',
+            'nonsecure' => 'NONESECURE',
+            'nested' => [ { 'password' => 'SECRET', 'login' => 'LOGIN' } ]
+          },
+          'CONTENT_TYPE' => 'application/json',
+          'HTTP_CUSTOM-HEADER' => 'secret1',
+          'HTTP_CUSTOM-NONSECURE' => 'NONSECURE',
+          'HTTP_AUTHORIZATION' => 'token',
+          'HTTP_X_XSRF_TOKEN' => 'xsrf=token',
+          ::Rack::RACK_REQUEST_COOKIE_HASH => {
+            'cookie1' => 'wooo',
+            'cookie2' => 'weee',
+            'cookie3' => 'WoWoW'
+          }
+        }))
+
+      Sentry.get_current_scope.apply_to_event(event)
+    end
+
+    it 'uses given mask' do
+      event_h = JSON.parse(event.to_hash.to_json)
+      subject.call(event_h)
+
+      expect(event_h).to match a_hash_including(
+        'request' => a_hash_including(
+          'headers' => a_hash_including(
+            'Custom-header' => mask,
+            'Custom-nonsecure' => 'NONSECURE',
+            'Authorization' => 'token',
+            'X-Xsrf-Token' => 'xsrf=token'
+          ),
+          'cookies' => a_hash_including(
+            'cookie1' => mask,
+            'cookie2' => mask,
+            'cookie3' => mask
+          ),
+          'query_string' => "password=#{mask}&token=#{mask}&nonsecure=NONESECURE&nested[][password]=#{mask}&nested[][login]=LOGIN",
+        ),
+        'extra' => a_hash_including(
+          'password' => mask,
+          'not_password' => 'NOT SECRET'
+        )
+      )
+    end
+  end
 end
