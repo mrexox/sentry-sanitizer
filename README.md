@@ -1,6 +1,6 @@
 ![CI](https://github.com/mrexox/sentry-sanitizer/workflows/CI/badge.svg)
 [![Gem Version](https://badge.fury.io/rb/sentry-sanitizer.svg)](https://badge.fury.io/rb/sentry-sanitizer)
-[![codecov](https://codecov.io/gh/mrexox/sentry-sanitizer/branch/master/graph/badge.svg?token=QW93HCVI0W)](https://codecov.io/gh/mrexox/sentry-sanitizer)
+[![Coverage Status](https://coveralls.io/repos/github/mrexox/sentry-sanitizer/badge.svg?branch=master)](https://coveralls.io/github/mrexox/sentry-sanitizer?branch=master)
 
 # sentry-sanitizer: sanitizing extension for sentry-ruby
 
