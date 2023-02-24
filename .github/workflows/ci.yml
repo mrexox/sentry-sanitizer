@@ -38,3 +38,16 @@ jobs:
       - uses: mrexox/coveralls-github-action@feat/add-carryforward-flag
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          flag-name: ruby-${{ matrix.ruby_version }}
+          parallel: true
+
+  coverage:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: mrexox/coveralls-github-action@feat/add-carryforward-flag
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          carryforward: "ruby-2.5,ruby-2.7,ruby-3.0,ruby-3.1,ruby-jruby"
+          parallel-finished: true
+
