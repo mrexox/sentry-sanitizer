@@ -34,3 +34,7 @@ jobs:
       - uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+
+      - uses: mrexox/coveralls-github-action@feat/add-carryforward-flag
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}

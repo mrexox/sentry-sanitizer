@@ -1,3 +1,8 @@
+require 'simplecov'
+SimpleCov.start do
+  enable_coverage :branch
+end
+
 require 'bundler/setup'
 require 'sentry/sanitizer'
 
