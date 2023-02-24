@@ -45,6 +45,7 @@ jobs:
   coverage:
     needs: rspec
     name: Unit tests
+    if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:
       - uses: mrexox/coveralls-github-action@feat/add-carryforward-flag
