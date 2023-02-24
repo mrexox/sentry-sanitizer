@@ -1,12 +1,10 @@
-require 'bundler/setup'
-require 'sentry/sanitizer'
-
 if ENV['CI'] == 'true'
   require 'simplecov'
   require 'simplecov-lcov'
   SimpleCov::Formatter::LcovFormatter.config.report_with_single_file = true
   SimpleCov.formatter = SimpleCov::Formatter::LcovFormatter
   SimpleCov.start do
+    add_filter '/spec/'
     enable_coverage :branch
   end
 
@@ -16,6 +14,9 @@ if ENV['CI'] == 'true'
   # SimpleCov.start
   # SimpleCov.formatter = SimpleCov::Formatter::Codecov
 end
+
+require 'bundler/setup'
+require 'sentry/sanitizer'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
