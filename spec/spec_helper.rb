@@ -1,7 +1,9 @@
 require 'simplecov'
 require 'simplecov-lcov'
 SimpleCov::Formatter::LcovFormatter.config.report_with_single_file = true
-SimpleCov.formatter = SimpleCov::Formatter::LcovFormatter
+SimpleCov.configure do
+  formatter SimpleCov::Formatter::LcovFormatter
+end
 SimpleCov.start do
   enable_coverage :branch
 end
