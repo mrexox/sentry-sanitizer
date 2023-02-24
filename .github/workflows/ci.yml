@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - { ruby_version: 2.5 }
+          # - { ruby_version: 2.5 }
           - { ruby_version: 2.7 }
           - { ruby_version: 3.0 }
           - { ruby_version: 3.1 }
