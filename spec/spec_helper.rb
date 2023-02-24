@@ -1,20 +1,20 @@
-require 'simplecov'
-require 'simplecov-lcov'
-SimpleCov::Formatter::LcovFormatter.config.report_with_single_file = true
-SimpleCov.formatter = SimpleCov::Formatter::LcovFormatter
-SimpleCov.start do
-  enable_coverage :branch
-end
-
 require 'bundler/setup'
 require 'sentry/sanitizer'
 
 if ENV['CI'] == 'true'
   require 'simplecov'
-  require 'codecov'
+  require 'simplecov-lcov'
+  SimpleCov::Formatter::LcovFormatter.config.report_with_single_file = true
+  SimpleCov.formatter = SimpleCov::Formatter::LcovFormatter
+  SimpleCov.start do
+    enable_coverage :branch
+  end
 
-  SimpleCov.start
-  SimpleCov.formatter = SimpleCov::Formatter::Codecov
+  # require 'simplecov'
+  # require 'codecov'
+
+  # SimpleCov.start
+  # SimpleCov.formatter = SimpleCov::Formatter::Codecov
 end
 
 RSpec.configure do |config|
