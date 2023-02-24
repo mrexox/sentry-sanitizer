@@ -39,6 +39,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: ruby-${{ matrix.ruby_version }}
+          path-to-lcov: ./coverage/lcov/sentry-sanitizer.lcov
           parallel: true
 
   coverage:

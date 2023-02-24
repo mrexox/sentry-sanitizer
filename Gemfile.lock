@@ -33,6 +33,7 @@ GEM
       docile (~> 1.1)
       simplecov-html (~> 0.11)
     simplecov-html (0.12.3)
+    simplecov-lcov (0.8.0)
 
 PLATFORMS
   ruby
@@ -45,6 +46,7 @@ DEPENDENCIES
   rspec (~> 3.0)
   sentry-sanitizer!
   simplecov
+  simplecov-lcov
 
 BUNDLED WITH
    2.3.16
