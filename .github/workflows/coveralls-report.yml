@@ -1,0 +1,21 @@
+name: Coveralls Report
+on:
+  workflow_call:
+
+jobs:
+  coveralls:
+    name: Coveralls Report
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    steps:
+      - uses: actions/checkout@v1
+
+      # - uses: coverallsapp/github-action@master
+      - uses: mrexox/coveralls-github-action@feat/use-universal-coverage-reporter
+        env:
+          COVERALLS_SERVICE_JOB_ID: ${{ github.sha }}
+          COVERALLS_SERVICE_NUMBER: ${{ github.sha }}
+        with:
+          carryforward: "ruby-2.5,ruby-2.6,ruby-2.7,ruby-3.0,ruby-3.1,ruby-jruby"
+          parallel-finished: true
+          debug: true
