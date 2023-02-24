@@ -31,6 +31,22 @@ jobs:
           bundle install --jobs 4 --retry 3 --no-cache
           bundle exec rspec
 
-      - uses: codecov/codecov-action@v1
+      - uses: mrexox/coveralls-github-action@feat/add-carryforward-flag
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          flag-name: ruby-${{ matrix.ruby_version }}
+          path-to-lcov: ./coverage/lcov/sentry-sanitizer.lcov
+          parallel: true
+
+  coverage:
+    needs: rspec
+    name: Unit tests
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: mrexox/coveralls-github-action@feat/add-carryforward-flag
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          carryforward: "ruby-2.5,ruby-2.7,ruby-3.0,ruby-3.1,ruby-jruby"
+          parallel-finished: true
+
