@@ -35,7 +35,7 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
-      - uses: mrexox/coveralls-github-action@feat/add-carryforward-flag
+      - uses: mrexox/coveralls-github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: ruby-${{ matrix.ruby_version }}
@@ -45,7 +45,7 @@ jobs:
     name: Unit tests
     runs-on: ubuntu-latest
     steps:
-      - uses: mrexox/coveralls-github-action@feat/add-carryforward-flag
+      - uses: mrexox/coveralls-github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           carryforward: "ruby-2.5,ruby-2.7,ruby-3.0,ruby-3.1,ruby-jruby"
