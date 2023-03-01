@@ -5,7 +5,7 @@ on:
 jobs:
   rspec:
     name: Unit tests
-    runs-on: macos-latest
+    runs-on: windows-latest
     strategy:
       matrix:
         include:
@@ -32,7 +32,7 @@ jobs:
       - uses: mrexox/coveralls-github-action@feat/use-universal-coverage-reporter
         with:
           flag-name: ruby-${{ join(matrix.*, '-') }}
-          path-to-lcov: ./coverage/.resultset.json
+          file: ./coverage/.resultset.json
           parallel: true
   coveralls:
     name: Report Coveralls
