@@ -32,8 +32,8 @@ jobs:
       - uses: mrexox/coveralls-github-action@feat/use-universal-coverage-reporter
         with:
           flag-name: ruby-${{ join(matrix.*, '-') }}
-          file: ./coverage/.resultset.json
           parallel: true
+          debug: true
   coveralls:
     name: Report Coveralls
     needs: rspec
