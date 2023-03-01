@@ -32,7 +32,7 @@ jobs:
       - uses: mrexox/coveralls-github-action@feat/use-universal-coverage-reporter
         with:
           flag-name: ruby-${{ join(matrix.*, '-') }}
-          path-to-lcov: ./coverage/lcov/sentry-sanitizer.lcov
+          path-to-lcov: ./coverage/.resultset.json
           parallel: true
   coveralls:
     name: Report Coveralls
