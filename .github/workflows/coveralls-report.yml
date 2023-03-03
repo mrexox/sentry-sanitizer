@@ -16,7 +16,8 @@ jobs:
           ref: ${{ github.sha }}
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 10 # seconds
-          running-workflow-name: coveralls-report
+          running-workflow-name: Coveralls Report
+          allowed-conclusions: success,skipped,cancelled,failure
 
       # - uses: coverallsapp/github-action@master
       - uses: mrexox/coveralls-github-action@feat/use-universal-coverage-reporter
