@@ -28,6 +28,8 @@ jobs:
 
       # - uses: coverallsapp/github-action@master
       - uses: mrexox/coveralls-github-action@feat/use-universal-coverage-reporter
+        env:
+          COVERALLS_SERVICE_NUMBER: ${{ github.sha }}
         with:
           flag-name: ruby-${{ join(matrix.*, '-') }}
           parallel: true
