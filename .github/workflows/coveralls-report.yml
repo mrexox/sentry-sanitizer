@@ -1,6 +1,6 @@
 name: Coveralls Report
 on:
-  workflow_call:
+  push:
 
 jobs:
   coveralls:
@@ -8,7 +8,15 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ always() }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
+
+      - name: Wait on tests
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          ref: ${{ github.sha }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 10 # seconds
+          running-workflow-name: coveralls-report
 
       # - uses: coverallsapp/github-action@master
       - uses: mrexox/coveralls-github-action@feat/use-universal-coverage-reporter
