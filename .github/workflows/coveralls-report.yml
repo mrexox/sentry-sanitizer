@@ -19,7 +19,7 @@ jobs:
           running-workflow-name: Coveralls Report
           allowed-conclusions: success,skipped,cancelled,failure
 
-      - uses: coverallsapp/github-action@release/v2
+      - uses: coverallsapp/github-action@v2
         env:
           COVERALLS_SERVICE_NUMBER: ${{ github.sha }}
         with:
