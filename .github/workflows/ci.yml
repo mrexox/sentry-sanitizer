@@ -26,8 +26,7 @@ jobs:
           bundle install --jobs 4 --retry 3 --no-cache
           bundle exec rspec
 
-      # - uses: coverallsapp/github-action@master
-      - uses: mrexox/coveralls-github-action@feat/use-universal-coverage-reporter
+      - uses: coverallsapp/github-action@release/v2
         env:
           COVERALLS_SERVICE_NUMBER: ${{ github.sha }}
         with:
