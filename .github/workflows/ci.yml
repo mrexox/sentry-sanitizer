@@ -32,6 +32,7 @@ jobs:
           COVERALLS_SERVICE_JOB_ID: ${{ github.sha }}
         with:
           flag-name: ruby-${{ join(matrix.*, '-') }}
+          path-to-lcov: ./coverage/lcov/sentry-sanitizer.lcov
           parallel: true
 
   # coveralls:
