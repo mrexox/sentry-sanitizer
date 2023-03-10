@@ -29,7 +29,6 @@ jobs:
       - uses: coverallsapp/github-action@v2
         env:
           COVERALLS_SERVICE_NUMBER: ${{ github.sha }}
-          # COVERALLS_SERVICE_JOB_ID: ${{ github.sha }}
         with:
           flag-name: ruby-${{ join(matrix.*, '-') }}
           parallel: true
