@@ -32,9 +32,4 @@ jobs:
           parallel: true
           debug: true
 
-  # coveralls:
-  #   name: Report Coveralls
-  #   needs: rspec
-  #   if: ${{ always() }}
-  #   uses: ./.github/workflows/coveralls-report.yml
 

@@ -31,10 +31,3 @@ jobs:
           flag-name: ruby-${{ join(matrix.*, '-') }}
           parallel: true
           debug: true
-
-  # coveralls:
-  #   name: Report Coveralls
-  #   needs: rspec
-  #   if: ${{ always() }}
-  #   uses: ./.github/workflows/coveralls-report.yml
-
