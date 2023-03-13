@@ -1,6 +1,8 @@
 name: Coveralls Report
 on:
   push:
+    branches: master
+  pull_request:
 
 jobs:
   coveralls:
@@ -9,6 +11,16 @@ jobs:
     if: ${{ always() }}
     steps:
       - uses: actions/checkout@v3
+
+      - name: Wait on tests (PR)
+        uses: lewagon/wait-on-check-action@v1.3.1
+        if: github.event_name == 'pull_request'
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 10 # seconds
+          running-workflow-name: Coveralls Report
+          allowed-conclusions: success,skipped,cancelled,failure
 
       - name: Wait on tests
         uses: lewagon/wait-on-check-action@v1.3.1

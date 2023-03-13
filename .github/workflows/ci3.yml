@@ -1,6 +1,8 @@
 name: CI3
 on:
   push:
+    branches: master
+  pull_request:
 
 jobs:
   rspec:
