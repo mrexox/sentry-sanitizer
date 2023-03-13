@@ -1,4 +1,4 @@
-name: Coveralls Report
+name: Coveralls
 on:
   push:
     branches: master
