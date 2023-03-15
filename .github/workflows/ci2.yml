@@ -1,7 +1,6 @@
 name: CI2
 on:
   push:
-    branches: master
   pull_request:
 
 jobs:
