@@ -26,10 +26,11 @@ jobs:
           bundle install --jobs 4 --retry 3 --no-cache
           bundle exec rspec
 
-      - uses: coverallsapp/github-action@v2
+      # - uses: coverallsapp/github-action@v2
+      - uses: mrexox/coveralls-github-action@feat/add-compare_ref-and-compare_sha-options
         env:
           COVERALLS_SERVICE_NUMBER: ${{ github.sha }}
         with:
           flag-name: ruby-${{ join(matrix.*, '-') }}
           parallel: true
-          debug: true
+          compare-ref: test/coverage-base
