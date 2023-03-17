@@ -29,11 +29,11 @@ jobs:
           bundle exec rspec
 
       - run: |
-          curl -sLO https://github.com/coverallsapp/coverage-reporter/releases/latest/download/coveralls-linux.tar.gz
+          curl -sLO https://github.com/coverallsapp/coverage-reporter/releases/latest/download/coveralls-windows.zip
           curl -sLO https://github.com/coverallsapp/coverage-reporter/releases/latest/download/coveralls-checksums.txt
-          cat coveralls-checksums.txt | sha256sum --check --ignore-missing
-          tar -xzf coveralls-linux.tar.gz
-          ./coveralls --parallel --job-flag ruby-${{ join(matrix.*, '-') }}
+          cat coveralls-checksums.txt | grep coveralls-windows.zip | sha256sum --check
+          zcat coveralls-windows.zip > coveralls.exe
+          ./coveralls.exe --parallel --job-flag ruby-${{ join(matrix.*, '-') }}
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERALLS_SERVICE_NUMBER: ${{ github.sha }}
