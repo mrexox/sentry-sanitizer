@@ -33,4 +33,4 @@ jobs:
         with:
           flag-name: ruby-${{ join(matrix.*, '-') }}
           parallel: true
-          compare-ref: test/coverage-base
+          format: simplecov
