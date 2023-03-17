@@ -26,11 +26,9 @@ jobs:
           bundle install --jobs 4 --retry 3 --no-cache
           bundle exec rspec
 
-      # - uses: coverallsapp/github-action@v2
-      - uses: mrexox/coveralls-github-action@feat/add-format-option
+      - uses: coverallsapp/github-action@v2
         env:
           COVERALLS_SERVICE_NUMBER: ${{ github.sha }}
         with:
           flag-name: ruby-${{ join(matrix.*, '-') }}
           parallel: true
-          format: golang
