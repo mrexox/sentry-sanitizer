@@ -27,7 +27,7 @@ jobs:
           bundle exec rspec
 
       # - uses: coverallsapp/github-action@v2
-      - uses: mrexox/coveralls-github-action@feat/add-compare_ref-and-compare_sha-options
+      - uses: mrexox/coveralls-github-action@feat/add-format-option
         env:
           COVERALLS_SERVICE_NUMBER: ${{ github.sha }}
         with:
