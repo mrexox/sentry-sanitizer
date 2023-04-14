@@ -25,15 +25,13 @@ jobs:
           bundle install --jobs 4 --retry 3 --no-cache
           bundle exec rspec
 
-      - run: |
-          curl -sLO https://github.com/coverallsapp/coverage-reporter/releases/latest/download/coveralls-linux.tar.gz
-          curl -sLO https://github.com/coverallsapp/coverage-reporter/releases/latest/download/coveralls-checksums.txt
-          cat coveralls-checksums.txt | grep coveralls-linux.tar.gz | sha256sum --check
-          tar -xzf coveralls-linux.tar.gz
-          ./coveralls --parallel --job-flag ruby-${{ join(matrix.*, '-') }}
+      - uses: mrexox/coveralls-github-action@feat/check-checksums
+        with:
+          parallel: true
+          flag-name: ruby-${{ join(matrix.*, '-') }}
         env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERALLS_SERVICE_NUMBER: ${{ github.sha }}
+
       # - uses: coverallsapp/github-action@v2
       #   env:
       #     COVERALLS_SERVICE_NUMBER: ${{ github.sha }}
