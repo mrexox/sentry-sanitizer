@@ -5,15 +5,17 @@ agent:
     type: e1-standard-2
     os_image: ubuntu2004
 blocks:
-  - name: 'Tests'
+  - name: Tests
     task:
       prologue:
         commands:
           - sem-version ruby 2.7 -f
       jobs:
-        - name: 'RSpec'
+        - name: RSpec
           commands:
             - checkout
             - bundle install --jobs 4 --retry 3 --no-cache
             - bundle exec rspec
-            - curl -L https://coveralls.io/coveralls-linux.tar.gz | tar -xz && ./coveralls
+            - 'curl -L https://coveralls.io/coveralls-linux.tar.gz | tar -xz && ./coveralls'
+      secrets:
+        - name: sentry-sanitizer
