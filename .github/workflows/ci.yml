@@ -31,7 +31,7 @@ jobs:
           curl -sLO https://github.com/coverallsapp/coverage-reporter/releases/latest/download/coveralls-windows.zip
           curl -sLO https://github.com/coverallsapp/coverage-reporter/releases/latest/download/coveralls-checksums.txt
           cat coveralls-checksums.txt | grep coveralls-windows.zip | sha256sum --check
-          7z x coveralls-windows.zip
+          curl -sL https://github.com/coverallsapp/coverage-reporter/releases/latest/download/coveralls-windows.zip | zcat > coveralls.exe
           ./coveralls --parallel --job-flag ruby-${{ join(matrix.*, '-') }}
         shell: bash
         env:
