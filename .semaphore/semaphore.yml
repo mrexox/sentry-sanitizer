@@ -16,6 +16,7 @@ blocks:
             - checkout
             - bundle install --jobs 4 --retry 3 --no-cache
             - bundle exec rspec
-            - 'curl -L https://coveralls.io/coveralls-linux.tar.gz | tar -xz && ./coveralls'
+            - 'curl -L https://coveralls.io/coveralls-linux.tar.gz | tar -xz && ./coveralls --parallel --job-flag rspec'
+            - ./coveralls --done
       secrets:
         - name: sentry-sanitizer
