@@ -1,4 +1,4 @@
-name: CI
+name: CI windows
 on:
   push:
   pull_request:
@@ -27,16 +27,9 @@ jobs:
           bundle install --jobs 4 --retry 3 --no-cache
           bundle exec rspec
 
-      - uses: mrexox/coveralls-github-action@feat/allow-specifying-reporter-version
-        with:
-          parallel: true
-          flag-name: ruby-${{ join(matrix.*, '-') }}
+      - uses: coverallsapp/github-action@v2
         env:
           COVERALLS_SERVICE_NUMBER: ${{ github.sha }}
-
-      # - uses: coverallsapp/github-action@v2
-      #   env:
-      #     COVERALLS_SERVICE_NUMBER: ${{ github.sha }}
-      #   with:
-      #     flag-name: ruby-${{ join(matrix.*, '-') }}
-      #     parallel: true
+        with:
+          flag-name: ruby-${{ join(matrix.*, '-') }}
+          parallel: true
