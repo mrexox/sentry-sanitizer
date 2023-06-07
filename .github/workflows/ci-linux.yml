@@ -1,8 +1,6 @@
-name: CI
+name: CI linux
 on:
   push:
-    branches:
-      - master
   pull_request:
 
 jobs:
@@ -16,6 +14,7 @@ jobs:
           - { ruby_version: 2.7 }
           - { ruby_version: 3.0 }
           - { ruby_version: 3.1 }
+          - { ruby_version: 3.2 }
           - { ruby_version: jruby }
     steps:
       - uses: actions/checkout@v1
@@ -31,22 +30,9 @@ jobs:
           bundle install --jobs 4 --retry 3 --no-cache
           bundle exec rspec
 
-      - uses: coverallsapp/github-action@master
+      - uses: coverallsapp/github-action@v2
+        env:
+          COVERALLS_SERVICE_NUMBER: ${{ github.sha }}
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          flag-name: ruby-${{ matrix.ruby_version }}
-          path-to-lcov: ./coverage/lcov/sentry-sanitizer.lcov
+          flag-name: ruby-${{ join(matrix.*, '-') }}
           parallel: true
-
-  coverage:
-    needs: rspec
-    name: Unit tests
-    if: ${{ always() }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          carryforward: "ruby-2.5,ruby-2.7,ruby-3.0,ruby-3.1,ruby-jruby"
-          parallel-finished: true
-

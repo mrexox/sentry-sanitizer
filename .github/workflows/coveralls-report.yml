@@ -1,0 +1,38 @@
+name: Coveralls
+on:
+  push:
+  pull_request:
+
+jobs:
+  coveralls:
+    name: Coveralls Report
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Wait on tests (PR)
+        uses: lewagon/wait-on-check-action@v1.3.1
+        if: github.event_name == 'pull_request'
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 10 # seconds
+          running-workflow-name: Coveralls Report
+          allowed-conclusions: success,skipped,cancelled,failure
+
+      - name: Wait on tests
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          ref: ${{ github.sha }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 10 # seconds
+          running-workflow-name: Coveralls Report
+          allowed-conclusions: success,skipped,cancelled,failure
+
+      - uses: coverallsapp/github-action@v2
+        env:
+          COVERALLS_SERVICE_NUMBER: ${{ github.sha }}
+        with:
+          carryforward: "ruby-2.5,ruby-2.6,ruby-2.7,ruby-3.0,ruby-3.1,ruby-jruby"
+          parallel-finished: true

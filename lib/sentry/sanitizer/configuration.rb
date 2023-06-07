@@ -1,6 +1,8 @@
-require 'sentry/configuration'
-require 'sentry/sanitizer/cleaner'
-require 'sentry/sanitizer/configuration_mixin'
+# frozen_string_literal: true
+
+require "sentry/configuration"
+require "sentry/sanitizer/cleaner"
+require "sentry/sanitizer/configuration_mixin"
 
 module Sentry
   # Monkey-patching Sentry::Configuration
@@ -14,21 +16,21 @@ module Sentry
     add_post_initialization_callback do
       @sanitize ||= Sentry::Sanitizer::Configuration.new
 
-      self.before_send = ->(event, hint) do
+      self.before_send = lambda { |event, _hint|
         Sentry::Sanitizer::Cleaner.new(Sentry.configuration.sanitize).call(event)
 
         event
-      end
+      }
     end
   end
 
   module Sanitizer
     class Configuration
-      attr_accessor :fields,
-                    :http_headers,
-                    :cookies,
-                    :query_string,
-                    :mask
+      attr_reader :fields,
+                  :http_headers,
+                  :cookies,
+                  :query_string,
+                  :mask
 
       def configured?
         [
@@ -40,41 +42,31 @@ module Sentry
       end
 
       def fields=(fields)
-        unless fields.is_a? Array
-          raise ArgumentError, 'sanitize_fields must be array'
-        end
+        raise ArgumentError, "sanitize_fields must be array" unless fields.is_a? Array
 
         @fields = fields
       end
 
       def http_headers=(headers)
-        unless [Array, TrueClass, FalseClass].include?(headers.class)
-          raise ArgumentError, 'sanitize_http_headers must be array'
-        end
+        raise ArgumentError, "sanitize_http_headers must be array" unless [Array, TrueClass, FalseClass].include?(headers.class)
 
         @http_headers = headers
       end
 
       def cookies=(cookies)
-        unless [TrueClass, FalseClass].include?(cookies.class)
-          raise ArgumentError, 'cookies must be boolean'
-        end
+        raise ArgumentError, "cookies must be boolean" unless [TrueClass, FalseClass].include?(cookies.class)
 
         @cookies = cookies
       end
 
       def query_string=(query_string)
-        unless [TrueClass, FalseClass].include?(query_string.class)
-          raise ArgumentError, 'query_string must be boolean'
-        end
+        raise ArgumentError, "query_string must be boolean" unless [TrueClass, FalseClass].include?(query_string.class)
 
         @query_string = query_string
       end
 
       def mask=(mask)
-        unless mask.is_a?(String)
-          raise ArgumentError, 'mask must be string'
-        end
+        raise ArgumentError, "mask must be string" unless mask.is_a?(String)
 
         @mask = mask
       end

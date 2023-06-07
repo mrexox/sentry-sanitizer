@@ -1,9 +1,11 @@
-RSpec.describe Sentry::Sanitizer::ConfigurationMixin do
-  let(:i1) { double('check') }
-  let(:i2) { double('check') }
-  let(:i3) { double('check') }
+# frozen_string_literal: true
 
-  it 'makes before_send summing up the hooks' do
+RSpec.describe Sentry::Sanitizer::ConfigurationMixin do
+  let(:i1) { double("check") }
+  let(:i2) { double("check") }
+  let(:i3) { double("check") }
+
+  it "makes before_send summing up the hooks" do
     Sentry.init do |config|
       config.before_send = ->(_, _) { i1.check }
       config.before_send = ->(_, _) { i2.check }
@@ -17,7 +19,7 @@ RSpec.describe Sentry::Sanitizer::ConfigurationMixin do
     Sentry.configuration.before_send.call(nil, nil)
   end
 
-  it 'raises ArgumentError if non-proc assigned' do
+  it "raises ArgumentError if non-proc assigned" do
     expect { Sentry.init { |c| c.before_send = 1 } }.to raise_error(ArgumentError)
   end
 end
