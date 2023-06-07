@@ -3,3 +3,4 @@ pre-commit:
     lint:
       run: bundle exec rubocop -A {staged_files}
       glob: "*.rb"
+      stage_fixed: true

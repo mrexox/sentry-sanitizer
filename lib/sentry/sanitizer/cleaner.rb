@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 module Sentry
   module Sanitizer
     class Cleaner
-      DEFAULT_MASK = '[FILTERED]'.freeze
+      DEFAULT_MASK = "[FILTERED]"
       DEFAULT_SENSITIVE_HEADERS = %w[
         Authorization
         X-Xsrf-Token
@@ -21,7 +23,7 @@ module Sentry
         if event.is_a?(Sentry::Event)
           sanitize(event, :object) if event.request
         elsif event.is_a?(Hash)
-          sanitize(event, :stringified_hash) if event['request']
+          sanitize(event, :stringified_hash) if event["request"]
           sanitize(event, :symbolized_hash) if event[:request]
         end
       end
@@ -35,11 +37,11 @@ module Sentry
           event.request.query_string = sanitize_query_string(event.request.query_string)
           event.extra = sanitize_data(event.extra)
         when :stringified_hash
-          event['request']['data'] = sanitize_data(event['request']['data'])
-          event['request']['headers'] = sanitize_headers(event['request']['headers'])
-          event['request']['cookies'] = sanitize_cookies(event['request']['cookies'])
-          event['request']['query_string'] = sanitize_query_string(event['request']['query_string'])
-          event['extra'] = sanitize_data(event['extra'])
+          event["request"]["data"] = sanitize_data(event["request"]["data"])
+          event["request"]["headers"] = sanitize_headers(event["request"]["headers"])
+          event["request"]["cookies"] = sanitize_cookies(event["request"]["cookies"])
+          event["request"]["query_string"] = sanitize_query_string(event["request"]["query_string"])
+          event["extra"] = sanitize_data(event["extra"])
         when :symbolized_hash
           event[:request][:data] = sanitize_data(event[:request][:data])
           event[:request][:headers] = sanitize_headers(event[:request][:headers])
@@ -71,6 +73,7 @@ module Sentry
           headers.transform_values { mask }
         when Array
           return headers unless http_headers.size.positive?
+
           http_headers_regex = sensitive_regexp(http_headers)
 
           headers.keys.select { |key| key.match?(http_headers_regex) }.each do |key|
@@ -95,14 +98,14 @@ module Sentry
         return query_string unless do_query_string
         return query_string unless query_string.is_a? String
 
-        sanitized_array = query_string.split('&').map do |kv_pair|
-          k, v = kv_pair.split('=')
+        sanitized_array = query_string.split("&").map do |kv_pair|
+          k, v = kv_pair.split("=")
           new_v = sanitize_string(k, v)
 
           "#{k}=#{new_v}"
         end
 
-        sanitized_array.join('&')
+        sanitized_array.join("&")
       end
 
       def sanitize_value(value, key)
@@ -145,7 +148,7 @@ module Sentry
       end
 
       def sensitive_regexp(fields)
-        Regexp.new(fields.map { |field| "\\b#{field}\\b" }.join('|'), 'i')
+        Regexp.new(fields.map { |field| "\\b#{field}\\b" }.join("|"), "i")
       end
     end
   end
