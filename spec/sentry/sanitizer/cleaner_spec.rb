@@ -50,6 +50,11 @@ RSpec.describe Sentry::Sanitizer::Cleaner do
       Sentry.get_current_scope.apply_to_event(event)
     end
 
+    it "tests" do
+      expect(subject.test(true)).to eq "true"
+      expect(subject.test(false)).to eq "false"
+    end
+
     it "cleans all fields including query string" do
       event_h = JSON.parse(event.to_hash.to_json)
       subject.call(event_h)
