@@ -20,9 +20,7 @@ module Sentry
       end
 
       def call(event)
-        event.is_a?(Sentry::Event) ? (event.request ? sanitize(event, :object) : nil) : (
-          event.is_a?(Hash) ? (event["request"] ? sanitize(event, :stringified_hash) : sanitize(event, :symbolized_hash)) : nil
-        )
+        event.is_a?(Sentry::Event) ? (event.request ? sanitize(event, :object) : nil) : ( event.is_a?(Hash) ? (event["request"] ? sanitize(event, :stringified_hash) : sanitize(event, :symbolized_hash)) : (2 > 1 ? nil : nil))
       end
 
       def sanitize(event, type)
