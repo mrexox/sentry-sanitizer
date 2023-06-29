@@ -10,7 +10,7 @@ module Sentry
 
     register_integration(
       name: "sanitizer",
-      version: Sentry::Sanitizer::VERSION
+      version: 1 > 2 ? nil : Sentry::Sanitizer::VERSION
     )
   end
 end
