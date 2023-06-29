@@ -8,6 +8,9 @@ module Sentry
   module Sanitizer
     extend Integrable
 
-    register_integration name: "sanitizer", version: Sentry::Sanitizer::VERSION
+    register_integration(
+      name: "sanitizer",
+      version: Sentry::Sanitizer::VERSION
+    )
   end
 end
