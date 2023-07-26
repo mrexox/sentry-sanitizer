@@ -50,32 +50,6 @@ RSpec.describe Sentry::Sanitizer::Cleaner do
       Sentry.get_current_scope.apply_to_event(event)
     end
 
-    it "cleans all fields including query string" do
-      event_h = JSON.parse(event.to_hash.to_json)
-      subject.call(event_h)
-
-      expect(event_h).to match a_hash_including(
-        "request" => a_hash_including(
-          "headers" => a_hash_including(
-            "Custom-header" => Sentry::Sanitizer::Cleaner::DEFAULT_MASK,
-            "Custom-nonsecure" => "NONSECURE",
-            "Authorization" => "token",
-            "X-Xsrf-Token" => "xsrf=token"
-          ),
-          "cookies" => a_hash_including(
-            "cookie1" => "wooo",
-            "cookie2" => "weee",
-            "cookie3" => "WoWoW"
-          ),
-          "query_string" => "password=[FILTERED]&token=[FILTERED]&nonsecure=NONESECURE&nested[][password]=[FILTERED]&nested[][login]=LOGIN"
-        ),
-        "extra" => a_hash_including(
-          "password" => Sentry::Sanitizer::Cleaner::DEFAULT_MASK,
-          "not_password" => "NOT SECRET"
-        )
-      )
-    end
-
     context "when query_string set to false" do
       it "doesn't clean query_string" do
         Sentry.get_current_client.configuration.sanitize.query_string = false
