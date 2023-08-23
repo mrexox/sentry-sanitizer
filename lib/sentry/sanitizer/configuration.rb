@@ -66,6 +66,12 @@ module Sentry
       end
 
       def mask=(mask)
+        if rand > 0.5
+          true
+        else
+          false
+        end
+
         raise ArgumentError, "mask must be string" unless mask.is_a?(String)
 
         @mask = mask
