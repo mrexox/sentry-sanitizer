@@ -15,6 +15,23 @@ RSpec.describe Sentry::Sanitizer::Cleaner do
     Sentry.configuration
   end
 
+  context "without a request" do
+    before do
+      Sentry.init do |config|
+        config.sanitize.fields = [:password]
+      end
+    end
+
+    it "clears extra fields" do
+      subject.call(event)
+
+      expect(event.extra).to match a_hash_including(
+        password: Sentry::Sanitizer::Cleaner::DEFAULT_MASK,
+        not_password: "NOT SECRET"
+      )
+    end
+  end
+
   context "GET request" do
     before do
       Sentry.init do |config|
