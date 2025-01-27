@@ -6,7 +6,7 @@ on:
 jobs:
   rspec:
     name: Unit tests
-    runs-on: macos-latest
+    runs-on: macos-13
     strategy:
       matrix:
         include:
