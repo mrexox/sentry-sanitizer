@@ -15,6 +15,23 @@ RSpec.describe Sentry::Sanitizer::Cleaner do
     Sentry.configuration
   end
 
+  context "without a request" do
+    before do
+      Sentry.init do |config|
+        config.sanitize.fields = [:password]
+      end
+    end
+
+    it "clears extra fields" do
+      subject.call(event)
+
+      expect(event.extra).to match a_hash_including(
+        password: Sentry::Sanitizer::Cleaner::DEFAULT_MASK,
+        not_password: "NOT SECRET"
+      )
+    end
+  end
+
   context "GET request" do
     before do
       Sentry.init do |config|
@@ -232,6 +249,46 @@ RSpec.describe Sentry::Sanitizer::Cleaner do
           password: Sentry::Sanitizer::Cleaner::DEFAULT_MASK,
           not_password: "NOT SECRET"
         )
+      end
+
+      context "with Sentry::ErrorEvent" do
+        let(:event) do
+          Sentry::ErrorEvent.new(configuration: configuration).tap do |e|
+            e.extra = ({ password: "SECRET", not_password: "NOT SECRET" })
+          end
+        end
+
+        it "filters everything according to configuration" do
+          subject.call(event)
+
+          expect(event.request.data).to match a_hash_including(
+            "password" => Sentry::Sanitizer::Cleaner::DEFAULT_MASK,
+            "secret_token" => Sentry::Sanitizer::Cleaner::DEFAULT_MASK,
+            "oops" => "OOPS",
+            "hmm" => [
+              a_hash_including(
+                "password" => Sentry::Sanitizer::Cleaner::DEFAULT_MASK,
+                "array" => "too"
+              )
+            ]
+          )
+          expect(event.request.headers).to match a_hash_including(
+            "H-1" => Sentry::Sanitizer::Cleaner::DEFAULT_MASK,
+            "H-2" => Sentry::Sanitizer::Cleaner::DEFAULT_MASK,
+            "H-3" => "secret3",
+            "Authorization" => "token",
+            "X-Xsrf-Token" => "xsrf=token"
+          )
+          expect(event.request.cookies).to match a_hash_including(
+            "cookie1" => Sentry::Sanitizer::Cleaner::DEFAULT_MASK,
+            "cookie2" => Sentry::Sanitizer::Cleaner::DEFAULT_MASK,
+            "cookie3" => Sentry::Sanitizer::Cleaner::DEFAULT_MASK
+          )
+          expect(event.extra).to match a_hash_including(
+            password: Sentry::Sanitizer::Cleaner::DEFAULT_MASK,
+            not_password: "NOT SECRET"
+          )
+        end
       end
     end
 
