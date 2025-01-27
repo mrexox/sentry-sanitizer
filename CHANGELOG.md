@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.7.0
+
+- fix: filter extra even without request [#14](https://github.com/mrexox/sentry-sanitizer/pull/14)
 
 ## 0.5.0
 
