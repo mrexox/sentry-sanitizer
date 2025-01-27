@@ -20,34 +20,42 @@ module Sentry
       end
 
       def call(event)
-        if event.is_a?(Sentry::Event)
-          sanitize(event, :object) if event.request
-        elsif event.is_a?(Hash)
-          sanitize(event, :stringified_hash) if event["request"]
-          sanitize(event, :symbolized_hash) if event[:request]
+        case event
+        when Sentry::Event
+          sanitize(event, :event)
+        when Hash
+          sanitize(event, :hash)
         end
       end
 
-      def sanitize(event, type)
+      def sanitize(event, type) # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
         case type
-        when :object
-          event.request.data = sanitize_data(event.request.data)
-          event.request.headers = sanitize_headers(event.request.headers)
-          event.request.cookies = sanitize_cookies(event.request.cookies)
-          event.request.query_string = sanitize_query_string(event.request.query_string)
+        when :event
+          if event.request
+            event.request.data = sanitize_data(event.request.data)
+            event.request.headers = sanitize_headers(event.request.headers)
+            event.request.cookies = sanitize_cookies(event.request.cookies)
+            event.request.query_string = sanitize_query_string(event.request.query_string)
+          end
           event.extra = sanitize_data(event.extra)
-        when :stringified_hash
-          event["request"]["data"] = sanitize_data(event["request"]["data"])
-          event["request"]["headers"] = sanitize_headers(event["request"]["headers"])
-          event["request"]["cookies"] = sanitize_cookies(event["request"]["cookies"])
-          event["request"]["query_string"] = sanitize_query_string(event["request"]["query_string"])
-          event["extra"] = sanitize_data(event["extra"])
-        when :symbolized_hash
-          event[:request][:data] = sanitize_data(event[:request][:data])
-          event[:request][:headers] = sanitize_headers(event[:request][:headers])
-          event[:request][:cookies] = sanitize_cookies(event[:request][:cookies])
-          event[:request][:query_string] = sanitize_query_string(event[:request][:query_string])
-          event[:extra] = sanitize_data(event[:extra])
+        when :hash
+          if event["request"]
+            event["request"]["data"] = sanitize_data(event["request"]["data"])
+            event["request"]["headers"] = sanitize_headers(event["request"]["headers"])
+            event["request"]["cookies"] = sanitize_cookies(event["request"]["cookies"])
+            event["request"]["query_string"] = sanitize_query_string(event["request"]["query_string"])
+          elsif event[:request]
+            event[:request][:data] = sanitize_data(event[:request][:data])
+            event[:request][:headers] = sanitize_headers(event[:request][:headers])
+            event[:request][:cookies] = sanitize_cookies(event[:request][:cookies])
+            event[:request][:query_string] = sanitize_query_string(event[:request][:query_string])
+          end
+
+          if event["extra"]
+            event["extra"] = sanitize_data(event["extra"])
+          elsif event[:extra]
+            event[:extra] = sanitize_data(event[:extra])
+          end
         end
       end
 
