@@ -27,6 +27,6 @@ Gem::Specification.new do |spec|
 
   spec.require_paths = ["lib"]
 
-  spec.add_runtime_dependency "sentry-ruby", "~> 5.3"
+  spec.add_runtime_dependency "sentry-ruby", ">= 5.3", "< 7.0.0"
   spec.metadata["rubygems_mfa_required"] = "true"
 end

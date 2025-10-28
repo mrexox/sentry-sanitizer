@@ -68,7 +68,7 @@ RSpec.describe Sentry::Sanitizer::Cleaner do
     end
 
     it "cleans all fields including query string" do
-      event_h = JSON.parse(event.to_hash.to_json)
+      event_h = JSON.parse(event.to_h.to_json)
       subject.call(event_h)
 
       expect(event_h).to match a_hash_including(
@@ -142,7 +142,7 @@ RSpec.describe Sentry::Sanitizer::Cleaner do
 
     context "with event as stringified Hash" do
       it "filters everything according to configuration" do
-        event_h = JSON.parse(event.to_hash.to_json)
+        event_h = JSON.parse(event.to_h.to_json)
         subject.call(event_h)
 
         expect(event_h).to match a_hash_including(
@@ -181,7 +181,7 @@ RSpec.describe Sentry::Sanitizer::Cleaner do
 
     context "with event as symbolized Hash" do
       it "filters everything according to configuration" do
-        event_h = event.to_hash
+        event_h = event.to_h
         subject.call(event_h)
 
         expect(event_h).to match a_hash_including(
@@ -315,7 +315,7 @@ RSpec.describe Sentry::Sanitizer::Cleaner do
       end
 
       it "should not filter anything" do
-        event_h = event.to_hash
+        event_h = event.to_h
         subject.call(event_h)
 
         expect(event_h).to match a_hash_including(
@@ -392,7 +392,7 @@ RSpec.describe Sentry::Sanitizer::Cleaner do
     end
 
     it "uses given mask" do
-      event_h = JSON.parse(event.to_hash.to_json)
+      event_h = JSON.parse(event.to_h.to_json)
       subject.call(event_h)
 
       expect(event_h).to match a_hash_including(
