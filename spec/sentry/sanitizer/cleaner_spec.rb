@@ -459,7 +459,8 @@ RSpec.describe Sentry::Sanitizer::Cleaner do
     end
 
     context "with data" do
-      let(:breadcrumb) { Sentry::Breadcrumb.new(message: "test", data: { body: JSON.dump(password: "PASSWORD") }) }
+      let(:breadcrumb) { Sentry::Breadcrumb.new(message: "test", data: { body: body }) }
+      let(:body) { nil }
 
       it "doesn't change breadcrumb" do
         expect { subject }.not_to(change { breadcrumb.to_h })
@@ -473,10 +474,28 @@ RSpec.describe Sentry::Sanitizer::Cleaner do
           end
         end
 
-        it "changes breadcrumb" do
-          subject
+        before { subject }
 
-          expect(breadcrumb.data[:body]).to eq(JSON.dump(password: Sentry::Sanitizer::Cleaner::DEFAULT_MASK))
+        context "when field is nil" do
+          it "returns the breadcrumb as is" do
+            expect(breadcrumb.data).to eq({ body: body })
+          end
+        end
+
+        context "when field has parseable JSON" do
+          let(:body) { JSON.dump(password: "PASSWORD") }
+
+          it "changes breadcrumb" do
+            expect(breadcrumb.data[:body]).to eq(JSON.dump(password: Sentry::Sanitizer::Cleaner::DEFAULT_MASK))
+          end
+        end
+
+        context "when field is something that is not parseable JSON" do
+          let(:body) { "not parseable JSON" }
+
+          it "returns the breadcrumb as is" do
+            expect(breadcrumb.data).to eq({ body: "not parseable JSON" })
+          end
         end
       end
     end
