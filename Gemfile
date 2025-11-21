@@ -11,7 +11,7 @@ gem "base64"
 gem "rubocop", "~> 1.28.2"
 gem "simplecov", require: false, group: :test
 
-gem "bundler", ">= 1.17"
+gem "bundler", ">= 2.3"
 gem "rack"
-gem "rake", "~> 10.0"
+gem "rake", "~> 12"
 gem "rspec", "~> 3.0"

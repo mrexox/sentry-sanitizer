@@ -21,7 +21,7 @@ GEM
     racc (1.8.1)
     rack (2.2.3.1)
     rainbow (3.1.1)
-    rake (10.5.0)
+    rake (12.3.3)
     regexp_parser (2.11.3)
     rexml (3.4.4)
     rspec (3.11.0)
@@ -64,9 +64,9 @@ PLATFORMS
 
 DEPENDENCIES
   base64
-  bundler (>= 1.17)
+  bundler (>= 2.3)
   rack
-  rake (~> 10.0)
+  rake (~> 12)
   rspec (~> 3.0)
   rubocop (~> 1.28.2)
   sentry-sanitizer!
