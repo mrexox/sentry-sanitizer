@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.0
+
+- Add `breadcrumbs.json_data_fields` configuration option [#18](https://github.com/mrexox/sentry-sanitizer/pull/18)
+
 ## 0.7.0
 
 - fix: filter extra even without request [#14](https://github.com/mrexox/sentry-sanitizer/pull/14)
