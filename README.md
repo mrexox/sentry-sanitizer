@@ -59,6 +59,9 @@ Sentry.init do |config|
   # You can sanitize query string params for GET requests
   config.sanitize.query_string = true
 
+  # Sanitize breadcrumbs data[:body] payload (Setry::Net:HTTP)
+  config.sanitize.breadcrumbs.json_data_fields = [:body]
+
   # ...
 end
 ```

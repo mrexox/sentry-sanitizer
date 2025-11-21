@@ -21,11 +21,27 @@ module Sentry
 
         event
       }
+
+      self.before_breadcrumb = lambda { |breadcrumb, _hint|
+        Sentry::Sanitizer::Cleaner.new(Sentry.configuration.sanitize).call(breadcrumb)
+
+        breadcrumb
+      }
     end
   end
 
   module Sanitizer
     class Configuration
+      class Breadcrumbs
+        attr_reader :json_data_fields
+
+        def json_data_fields=(fields)
+          raise ArgumentError, "json_data_fields must be Array of Symbol" unless fields.is_a? Array
+
+          @json_data_fields = fields
+        end
+      end
+
       attr_reader :fields,
                   :http_headers,
                   :cookies,
@@ -37,8 +53,13 @@ module Sentry
           fields,
           http_headers,
           cookies,
-          query_string
+          query_string,
+          @breadcrumbs
         ].any? { |setting| !setting.nil? }
+      end
+
+      def breadcrumbs
+        @breadcrumbs ||= Breadcrumbs.new
       end
 
       def fields=(fields)

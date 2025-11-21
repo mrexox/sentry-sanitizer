@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "json"
+
 module Sentry
   module Sanitizer
     class Cleaner
@@ -17,46 +19,64 @@ module Sentry
         @do_cookies = config.cookies || false
         @do_query_string = config.query_string || false
         @mask = config.mask || DEFAULT_MASK
+        @breadcrumbs_json_data_fields = config.breadcrumbs.json_data_fields || []
       end
 
       def call(event)
         case event
         when Sentry::Event
-          sanitize(event, :event)
+          sanitize_event!(event)
         when Hash
-          sanitize(event, :hash)
+          sanitize_hash!(event)
+        when Sentry::Breadcrumb
+          sanitize_breadcrumb!(event)
         end
       end
 
-      def sanitize(event, type) # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-        case type
-        when :event
-          if event.request
-            event.request.data = sanitize_data(event.request.data)
-            event.request.headers = sanitize_headers(event.request.headers)
-            event.request.cookies = sanitize_cookies(event.request.cookies)
-            event.request.query_string = sanitize_query_string(event.request.query_string)
-          end
-          event.extra = sanitize_data(event.extra)
-        when :hash
-          if event["request"]
-            event["request"]["data"] = sanitize_data(event["request"]["data"])
-            event["request"]["headers"] = sanitize_headers(event["request"]["headers"])
-            event["request"]["cookies"] = sanitize_cookies(event["request"]["cookies"])
-            event["request"]["query_string"] = sanitize_query_string(event["request"]["query_string"])
-          elsif event[:request]
-            event[:request][:data] = sanitize_data(event[:request][:data])
-            event[:request][:headers] = sanitize_headers(event[:request][:headers])
-            event[:request][:cookies] = sanitize_cookies(event[:request][:cookies])
-            event[:request][:query_string] = sanitize_query_string(event[:request][:query_string])
-          end
-
-          if event["extra"]
-            event["extra"] = sanitize_data(event["extra"])
-          elsif event[:extra]
-            event[:extra] = sanitize_data(event[:extra])
-          end
+      def sanitize_event!(event)
+        if event.request
+          event.request.data = sanitize_data(event.request.data)
+          event.request.headers = sanitize_headers(event.request.headers)
+          event.request.cookies = sanitize_cookies(event.request.cookies)
+          event.request.query_string = sanitize_query_string(event.request.query_string)
         end
+        event.extra = sanitize_data(event.extra)
+      end
+
+      def sanitize_hash!(event)
+        if event["request"]
+          event["request"]["data"] = sanitize_data(event["request"]["data"])
+          event["request"]["headers"] = sanitize_headers(event["request"]["headers"])
+          event["request"]["cookies"] = sanitize_cookies(event["request"]["cookies"])
+          event["request"]["query_string"] = sanitize_query_string(event["request"]["query_string"])
+        elsif event[:request]
+          event[:request][:data] = sanitize_data(event[:request][:data])
+          event[:request][:headers] = sanitize_headers(event[:request][:headers])
+          event[:request][:cookies] = sanitize_cookies(event[:request][:cookies])
+          event[:request][:query_string] = sanitize_query_string(event[:request][:query_string])
+        end
+
+        if event["extra"]
+          event["extra"] = sanitize_data(event["extra"])
+        elsif event[:extra]
+          event[:extra] = sanitize_data(event[:extra])
+        end
+      end
+
+      def sanitize_breadcrumb!(breadcrumb)
+        return unless breadcrumbs_json_data_fields
+        return unless breadcrumbs_json_data_fields.size.positive?
+        return unless breadcrumb.data
+
+        breadcrumbs_json_data_fields.each do |field|
+          next unless breadcrumb.data.key?(field)
+
+          json_data = JSON.parse(breadcrumb.data[field])
+
+          breadcrumb.data[field] = JSON.dump(sanitize_data(json_data))
+        end
+      rescue JSON::ParserError
+        # ignore
       end
 
       def sanitize_data(hash)
@@ -72,7 +92,8 @@ module Sentry
                   :http_headers,
                   :do_cookies,
                   :do_query_string,
-                  :mask
+                  :mask,
+                  :breadcrumbs_json_data_fields
 
       # Sanitize specified headers
       def sanitize_headers(headers)
