@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.1
+
+- Fix breadcrumb data[:body] == nil handling [#20](https://github.com/mrexox/sentry-sanitizer/pull/20)
+
 ## 0.8.0
 
 - Add `breadcrumbs.json_data_fields` configuration option [#18](https://github.com/mrexox/sentry-sanitizer/pull/18)
