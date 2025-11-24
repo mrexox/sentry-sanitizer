@@ -14,6 +14,7 @@ Currently this gem provides following features
 - [x] Sanitizing cookies
 - [x] Sanitizing query string
 - [x] Sanitizing extras ([see](https://docs.sentry.io/platforms/ruby/enriching-events/context/#additional-data) `Sentry.set_extras`)
+- [x] Sanitizing breadcrumb data fields
 
 ## Installation
 
