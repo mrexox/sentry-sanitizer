@@ -1,4 +1,4 @@
-![CI](https://github.com/mrexox/sentry-sanitizer/workflows/CI/badge.svg)
+[![CI](https://github.com/mrexox/sentry-sanitizer/actions/workflows/ci-linux.yml/badge.svg)](https://github.com/mrexox/sentry-sanitizer/actions/workflows/ci-linux.yml)
 [![Gem Version](https://badge.fury.io/rb/sentry-sanitizer.svg)](https://badge.fury.io/rb/sentry-sanitizer)
 [![Coverage Status](https://coveralls.io/repos/github/mrexox/sentry-sanitizer/badge.svg?branch=master)](https://coveralls.io/github/mrexox/sentry-sanitizer?branch=master)
 
@@ -17,8 +17,6 @@ Currently this gem provides following features
 - [x] Sanitizing breadcrumb data fields
 
 ## Installation
-
-:warning: Please, don't use `0.1.*` version as it was experimental and not usable at all.
 
 Add this line to your application's Gemfile:
 
@@ -75,7 +73,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/mrexox/sentry-sanitizer.
+Bug reports and pull requests are welcome on GitHub at https://github.com/mrexox/sentry-sanitizer/issues.
 
 ## License
 
