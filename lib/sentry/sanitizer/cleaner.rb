@@ -65,7 +65,7 @@ module Sentry
 
       def sanitize_breadcrumb!(breadcrumb)
         return unless breadcrumbs_json_data_fields.size.positive?
-        return unless breadcrumb.data
+        return unless breadcrumb.data.is_a? Hash
 
         breadcrumbs_json_data_fields.each do |field|
           next unless breadcrumb.data.key?(field)
