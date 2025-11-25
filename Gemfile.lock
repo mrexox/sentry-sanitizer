@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    sentry-sanitizer (0.8.1)
+    sentry-sanitizer (0.8.2)
       sentry-ruby (>= 5.3, < 7.0.0)
 
 GEM
@@ -50,7 +50,7 @@ GEM
       parser (>= 3.3.7.2)
       prism (~> 1.4)
     ruby-progressbar (1.13.0)
-    sentry-ruby (6.0.0)
+    sentry-ruby (6.1.1)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
     simplecov (0.18.5)
