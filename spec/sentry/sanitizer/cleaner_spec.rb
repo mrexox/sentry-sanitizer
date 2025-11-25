@@ -446,56 +446,67 @@ RSpec.describe Sentry::Sanitizer::Cleaner do
   describe "breadcrumb" do
     subject { described_class.new(Sentry.configuration.sanitize).call(breadcrumb) }
 
-    let(:breadcrumb) { Sentry::Breadcrumb.new(message: "test") }
-
-    before do
-      Sentry.init do |config|
-        config.sanitize.fields = ["password"]
-      end
-    end
-
-    it "doesn't change breadcrumb" do
-      expect { subject }.not_to(change { breadcrumb.to_h })
-    end
-
-    context "with data" do
-      let(:breadcrumb) { Sentry::Breadcrumb.new(message: "test", data: { body: body }) }
-      let(:body) { nil }
+    context "without any sanitize configuration set" do
+      let(:breadcrumb) { Sentry::Breadcrumb.new(message: "test", data: { body: nil }) }
 
       it "doesn't change breadcrumb" do
         expect { subject }.not_to(change { breadcrumb.to_h })
       end
+    end
 
-      context "with configuration" do
-        before do
-          Sentry.init do |config|
-            config.sanitize.fields = ["password"]
-            config.sanitize.breadcrumbs.json_data_fields = [:body]
-          end
+    context "with only sanitize fields configuration set" do
+      let(:breadcrumb) { Sentry::Breadcrumb.new(message: "test") }
+
+      before do
+        Sentry.init do |config|
+          config.sanitize.fields = ["password"]
+        end
+      end
+
+      it "doesn't change breadcrumb" do
+        expect { subject }.not_to(change { breadcrumb.to_h })
+      end
+    end
+
+    context "with sanitize fields and breadcrumbs configuration set" do
+      before do
+        Sentry.init do |config|
+          config.sanitize.fields = ["password"]
+          config.sanitize.breadcrumbs.json_data_fields = [:body]
         end
 
-        before { subject }
+        subject
+      end
 
-        context "when field is nil" do
-          it "returns the breadcrumb as is" do
-            expect(breadcrumb.data).to eq({ body: body })
-          end
+      context "when the field has a nil value" do
+        let(:breadcrumb) { Sentry::Breadcrumb.new(message: "test", data: { body: nil }) }
+
+        it "returns the breadcrumb data as is" do
+          expect(breadcrumb.data).to eq({ body: nil })
         end
+      end
 
-        context "when field has parseable JSON" do
-          let(:body) { JSON.dump(password: "PASSWORD") }
+      context "when the field has parseable JSON" do
+        let(:breadcrumb) { Sentry::Breadcrumb.new(message: "test", data: { body: JSON.dump(password: "PASSWORD") }) }
 
-          it "changes breadcrumb" do
-            expect(breadcrumb.data[:body]).to eq(JSON.dump(password: Sentry::Sanitizer::Cleaner::DEFAULT_MASK))
-          end
+        it "sanitizes the breadcrumb data" do
+          expect(breadcrumb.data[:body]).to eq(JSON.dump(password: Sentry::Sanitizer::Cleaner::DEFAULT_MASK))
         end
+      end
 
-        context "when field is something that is not parseable JSON" do
-          let(:body) { "not parseable JSON" }
+      context "when the field is something that is not parseable JSON" do
+        let(:breadcrumb) { Sentry::Breadcrumb.new(message: "test", data: { body: "not parseable JSON" }) }
 
-          it "returns the breadcrumb as is" do
-            expect(breadcrumb.data).to eq({ body: "not parseable JSON" })
-          end
+        it "returns the breadcrumb data as is" do
+          expect(breadcrumb.data).to eq({ body: "not parseable JSON" })
+        end
+      end
+
+      context "when the breadcrumb data is not a Hash" do
+        let(:breadcrumb) { Sentry::Breadcrumb.new(message: "test", data: "just a string") }
+
+        it "returns the breadcrumb data as is" do
+          expect(breadcrumb.data).to eq("just a string")
         end
       end
     end
