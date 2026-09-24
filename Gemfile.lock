@@ -2,7 +2,6 @@ PATH
   remote: .
   specs:
     sentry-sanitizer (0.8.2)
-      logger
       sentry-ruby (>= 5.3, < 8.0.0)
 
 GEM
@@ -70,6 +69,7 @@ DEPENDENCIES
   base64
   bundler (>= 2.3)
   cgi
+  logger
   rack
   rake (~> 12)
   rspec (~> 3.0)
