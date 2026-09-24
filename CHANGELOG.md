@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.2
+
+- Sanitize breadcrumb data only if it's a Hash [#22](https://github.com/mrexox/sentry-sanitizer/pull/22)
+
 ## 0.8.1
 
 - Fix breadcrumb data[:body] == nil handling [#20](https://github.com/mrexox/sentry-sanitizer/pull/20)
