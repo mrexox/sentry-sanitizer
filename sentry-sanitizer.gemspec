@@ -27,6 +27,10 @@ Gem::Specification.new do |spec|
 
   spec.require_paths = ["lib"]
 
-  spec.add_runtime_dependency "sentry-ruby", ">= 5.3", "< 7.0.0"
+  spec.add_runtime_dependency "sentry-ruby", ">= 5.3", "< 8.0.0"
+  # sentry-ruby requires "logger" internally but only declares it as a dependency
+  # itself from ~6.7/7.0 onwards; older sentry-ruby versions rely on it being a
+  # stdlib default gem, which Ruby 4.0 no longer bundles by default.
+  spec.add_runtime_dependency "logger"
   spec.metadata["rubygems_mfa_required"] = "true"
 end
