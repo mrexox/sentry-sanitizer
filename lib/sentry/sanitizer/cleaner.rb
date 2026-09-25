@@ -125,8 +125,20 @@ module Sentry
 
       def sanitize_query_string(query_string)
         return query_string unless do_query_string
-        return query_string unless query_string.is_a? String
 
+        case query_string
+        when String
+          sanitize_query_string_from_string(query_string)
+        when Hash
+          sanitize_data(query_string)
+        else
+          query_string
+        end
+      end
+
+      # sentry-ruby >= 7 populates Request#query_string as a Hash (from Rack's
+      # parsed request.GET) instead of the raw query string.
+      def sanitize_query_string_from_string(query_string)
         sanitized_array = query_string.split("&").map do |kv_pair|
           k, v = kv_pair.split("=")
           new_v = sanitize_string(k, v)
