@@ -16,9 +16,14 @@ gem "logger"
 gem "base64"
 gem "cgi"
 gem "rubocop", "~> 1.28.2"
-gem "simplecov", require: false, group: :test
 
 gem "bundler", ">= 2.3"
 gem "rack"
 gem "rake", "~> 12"
 gem "rspec", "~> 3.0"
+
+group :test do
+  gem "activesupport"
+
+  gem "simplecov", require: false
+end

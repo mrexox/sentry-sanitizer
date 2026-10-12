@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 require "json"
+require "sentry/sanitizer/filter"
 
 module Sentry
   module Sanitizer
     class Cleaner
-      DEFAULT_MASK = "[FILTERED]"
       DEFAULT_SENSITIVE_HEADERS = %w[
         Authorization
         X-Xsrf-Token
@@ -14,11 +14,16 @@ module Sentry
       private_constant :DEFAULT_SENSITIVE_HEADERS
 
       def initialize(config)
-        @fields = config.fields || []
+        @filter = config.filter || Filter.new(config.fields, mask: config.mask)
+
         @http_headers = config.http_headers || DEFAULT_SENSITIVE_HEADERS
+        @headers_filter = Filter.new(@http_headers, mask: config.mask) if @http_headers.is_a?(Array)
+
         @do_cookies = config.cookies || false
         @do_query_string = config.query_string || false
-        @mask = config.mask || DEFAULT_MASK
+
+        @mask = config.mask || Filter::DEFAULT_MASK
+
         @breadcrumbs_json_data_fields = config.breadcrumbs.json_data_fields || []
       end
 
@@ -80,19 +85,17 @@ module Sentry
       end
 
       def sanitize_data(hash)
-        return hash unless hash.is_a? Hash
-        return hash unless fields.size.positive?
-
-        sanitize_value(hash, nil)
+        filter.filter(hash)
       end
 
       private
 
-      attr_reader :fields,
+      attr_reader :filter,
+                  :headers_filter,
+                  :mask,
                   :http_headers,
                   :do_cookies,
                   :do_query_string,
-                  :mask,
                   :breadcrumbs_json_data_fields
 
       # Sanitize specified headers
@@ -101,15 +104,7 @@ module Sentry
         when TrueClass
           headers.transform_values { mask }
         when Array
-          return headers unless http_headers.size.positive?
-
-          http_headers_regex = sensitive_regexp(http_headers)
-
-          headers.keys.select { |key| key.match?(http_headers_regex) }.each do |key|
-            headers[key] = mask
-          end
-
-          headers
+          headers_filter.filter(headers)
         else
           headers
         end
@@ -141,55 +136,12 @@ module Sentry
       def sanitize_query_string_from_string(query_string)
         sanitized_array = query_string.split("&").map do |kv_pair|
           k, v = kv_pair.split("=")
-          new_v = sanitize_string(k, v)
+          new_v = filter.filter_param(k, v)
 
           "#{k}=#{new_v}"
         end
 
         sanitized_array.join("&")
-      end
-
-      def sanitize_value(value, key)
-        case value
-        when Hash
-          sanitize_hash(key, value)
-        when Array
-          sanitize_array(key, value)
-        when String
-          sanitize_string(key, value)
-        else
-          value
-        end
-      end
-
-      def sanitize_hash(key, value)
-        if key&.match?(sensitive_fields)
-          mask
-        elsif value.frozen?
-          value.merge(value) { |k, v| sanitize_value(v, k) }
-        else
-          value.merge!(value) { |k, v| sanitize_value(v, k) }
-        end
-      end
-
-      def sanitize_array(key, value)
-        if value.frozen?
-          value.map { |val| sanitize_value(val, key) }
-        else
-          value.map! { |val| sanitize_value(val, key) }
-        end
-      end
-
-      def sanitize_string(key, value)
-        key&.match?(sensitive_fields) ? mask : value
-      end
-
-      def sensitive_fields
-        @sensitive_fields ||= sensitive_regexp(fields)
-      end
-
-      def sensitive_regexp(fields)
-        Regexp.new(fields.map { |field| "\\b#{field}\\b" }.join("|"), "i")
       end
     end
   end
