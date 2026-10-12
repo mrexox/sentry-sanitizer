@@ -76,6 +76,7 @@ module Sentry
         methods = Sanitizer::Filter.instance_methods(false)
         implements = methods.all? { |method| filter.respond_to?(method) }
         raise ArgumentError, "specify either 'fields' or 'filter'" if fields
+        raise ArgumentError, "mask can't be used when 'filter' is set" if mask
         raise ArgumentError, "filter must implement #{methods.join(', ')}" unless implements
 
         @filter = filter
@@ -101,6 +102,7 @@ module Sentry
 
       def mask=(mask)
         raise ArgumentError, "mask must be string" unless mask.is_a?(String)
+        raise ArgumentError, "mask can't be used when 'filter' is set" if filter
 
         @mask = mask
       end

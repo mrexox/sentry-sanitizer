@@ -94,6 +94,52 @@ RSpec.describe Sentry::Sanitizer::Configuration do
         expect { subject }.to raise_error(ArgumentError, /either 'fields' or 'filter'/)
       end
     end
+
+    context "when mask already set" do
+      let(:value) { ActiveSupport::ParameterFilter.new(%i[passw]) }
+
+      before do
+        config.mask = "<<SECRET>>"
+      end
+
+      it "raises error" do
+        expect { subject }.to raise_error(ArgumentError, /mask can't be used when 'filter' is set/)
+      end
+    end
+  end
+
+  describe "#mask=" do
+    subject { config.mask = value }
+
+    context "with string" do
+      let(:value) { "<<SECRET>>" }
+
+      it "is properly configured" do
+        subject
+
+        expect(config.mask).to eq "<<SECRET>>"
+      end
+    end
+
+    context "with non-string" do
+      let(:value) { :a }
+
+      it "raises error" do
+        expect { subject }.to raise_error(ArgumentError, /mask must be string/)
+      end
+    end
+
+    context "when filter already set" do
+      let(:value) { "<<SECRET>>" }
+
+      before do
+        config.filter = ActiveSupport::ParameterFilter.new(%i[passw])
+      end
+
+      it "raises error" do
+        expect { subject }.to raise_error(ArgumentError, /mask can't be used when 'filter' is set/)
+      end
+    end
   end
 
   describe "#http_headers=" do

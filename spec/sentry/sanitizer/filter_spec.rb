@@ -59,10 +59,15 @@ RSpec.describe Sentry::Sanitizer::Filter do
     end
 
     context "with non-string values" do
-      let(:params) { { "age" => 5, "login" => "LOGIN" } }
+      let(:params) { { "age" => 5, "admin" => true, "note" => nil, "password" => 1234 } }
 
-      it "masks them" do
-        expect(subject).to eq("age" => described_class::DEFAULT_MASK, "login" => "LOGIN")
+      it "masks only matching keys" do
+        expect(subject).to eq(
+          "age" => 5,
+          "admin" => true,
+          "note" => nil,
+          "password" => described_class::DEFAULT_MASK
+        )
       end
     end
 

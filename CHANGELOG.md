@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.9.0
+
+- Add `filter` option to pass a custom filter, e.g. `ActiveSupport::ParameterFilter` [#25](https://github.com/mrexox/sentry-sanitizer/pull/25)
+- `filter` can't be combined with `fields` or `mask`
+
 ## 0.8.2
 
 - Sanitize breadcrumb data only if it's a Hash [#22](https://github.com/mrexox/sentry-sanitizer/pull/22)

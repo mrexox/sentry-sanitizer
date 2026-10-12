@@ -49,7 +49,7 @@ Sentry.init do |config|
   # Must implement #filter(array_or_hash) and #filter_param(key, value)
   # Don't set 'config.sanitize.fields' if using this.
   config.sanitize.filter = ActiveSupport::ParameterFilter.new(
-    Rails.application.config.filter_parameters
+    Rails.application.config.filter_parameters, mask: "[FILTERED]"
   )
 
   # HTTP headers can be sanitized too (it is case insensitive)
