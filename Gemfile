@@ -23,7 +23,7 @@ gem "rake", "~> 12"
 gem "rspec", "~> 3.0"
 
 group :test do
-  gem "activesupport"
+  gem "activesupport", "~> 8.0"
 
   gem "simplecov", require: false
 end
