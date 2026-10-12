@@ -2,6 +2,7 @@
 
 require "sentry/configuration"
 require "sentry/sanitizer/cleaner"
+require "sentry/sanitizer/filter"
 require "sentry/sanitizer/configuration_mixin"
 
 module Sentry
@@ -43,6 +44,7 @@ module Sentry
       end
 
       attr_reader :fields,
+                  :filter,
                   :http_headers,
                   :cookies,
                   :query_string,
@@ -51,6 +53,7 @@ module Sentry
       def configured?
         [
           fields,
+          filter,
           http_headers,
           cookies,
           query_string,
@@ -63,9 +66,20 @@ module Sentry
       end
 
       def fields=(fields)
-        raise ArgumentError, "sanitize_fields must be array" unless fields.is_a? Array
+        raise ArgumentError, "fields must be array" unless fields.is_a? Array
+        raise ArgumentError, "specify either 'fields' or 'filter'" if filter
 
         @fields = fields
+      end
+
+      def filter=(filter)
+        methods = Sanitizer::Filter.instance_methods(false)
+        implements = methods.all? { |method| filter.respond_to?(method) }
+        raise ArgumentError, "specify either 'fields' or 'filter'" if fields
+        raise ArgumentError, "mask can't be used when 'filter' is set" if mask
+        raise ArgumentError, "filter must implement #{methods.join(', ')}" unless implements
+
+        @filter = filter
       end
 
       def http_headers=(headers)
@@ -88,6 +102,7 @@ module Sentry
 
       def mask=(mask)
         raise ArgumentError, "mask must be string" unless mask.is_a?(String)
+        raise ArgumentError, "mask can't be used when 'filter' is set" if filter
 
         @mask = mask
       end

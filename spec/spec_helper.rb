@@ -10,6 +10,7 @@ end
 
 require "bundler/setup"
 require "sentry/sanitizer"
+require "active_support/parameter_filter"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

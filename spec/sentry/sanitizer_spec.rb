@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 RSpec.describe Sentry::Sanitizer do
-  it "has a version number" do
-    expect(Sentry::Sanitizer::VERSION).not_to be nil
+  describe "VERSION" do
+    subject { Sentry::Sanitizer::VERSION }
+
+    it { is_expected.not_to be_nil }
   end
 end
