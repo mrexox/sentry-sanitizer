@@ -40,22 +40,27 @@ Add following lines to your Sentry configuration:
 Sentry.init do |config|
   # ... your configuration
 
-  # If using Rails
+  # Mask same fields as Rails does
   config.sanitize.fields = Rails.application.config.filter_parameters
-
-  # You can also pass custom array
+  # Or pass custom fields
   config.sanitize.fields = %w[password super_secret_token]
+
+  # Use custom filter (e.g. from activesupport).
+  # Must implement #filter(array_or_hash) and #filter_param(key, value)
+  # Don't set 'config.sanitize.fields' if using this.
+  config.sanitize.filter = ActiveSupport::ParameterFilter.new(
+    Rails.application.config.filter_parameters
+  )
 
   # HTTP headers can be sanitized too (it is case insensitive)
   config.sanitize.http_headers = %w[Authorization X-Xsrf-Token]
-
-  # You can sanitize all HTTP headers with setting `true` value
+  # Mask all headers
   config.sanitize.http_headers = true
 
-  # You can sanitize all cookies with this setting
+  # Mask all cookies
   config.sanitize.cookies = true
 
-  # You can sanitize query string params for GET requests
+  # Parse and sanitize request query string
   config.sanitize.query_string = true
 
   # Sanitize breadcrumbs data[:body] payload (Setry::Net:HTTP)
