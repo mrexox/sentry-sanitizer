@@ -84,8 +84,13 @@ module Sentry
         # ignore
       end
 
-      def sanitize_data(hash)
-        filter.filter(hash)
+      def sanitize_data(data)
+        case data
+        when Hash, Array
+          filter.filter(data)
+        else
+          data
+        end
       end
 
       private

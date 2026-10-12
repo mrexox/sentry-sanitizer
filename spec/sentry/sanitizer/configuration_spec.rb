@@ -1,83 +1,201 @@
 # frozen_string_literal: true
 
 RSpec.describe Sentry::Sanitizer::Configuration do
-  subject(:config) { described_class.new }
+  let(:config) { described_class.new }
 
-  it { is_expected.not_to be_configured }
+  describe "#configured?" do
+    subject { config }
 
-  it "adds #sanitize option to Sentry::Configuration" do
-    sentry_config = Sentry::Configuration.new
-
-    expect(sentry_config.sanitize).to be_a(described_class)
+    it { is_expected.not_to be_configured }
   end
 
-  context "fields" do
-    it "is properly configured" do
-      config.fields = %i[a b]
+  describe "Sentry::Configuration#sanitize" do
+    subject { Sentry::Configuration.new.sanitize }
 
-      is_expected.to be_configured
-      expect(config.fields).to match_array(%i[a b])
-    end
-
-    it "raises error on mistake" do
-      expect { config.fields = :a }.to raise_error(ArgumentError)
-    end
+    it { is_expected.to be_a(described_class) }
   end
 
-  context "http_headers" do
-    it "is properly configured" do
-      config.http_headers = %w[HEADER1 HEADER2]
+  describe "#fields=" do
+    subject { config.fields = value }
 
-      is_expected.to be_configured
-      expect(config.http_headers).to match_array(%w[HEADER1 HEADER2])
+    context "with array" do
+      let(:value) { %i[a b] }
 
-      config.http_headers = true
+      it "is properly configured" do
+        subject
 
-      is_expected.to be_configured
-      expect(config.http_headers).to eq true
+        expect(config).to be_configured
+        expect(config.fields).to match_array(%i[a b])
+      end
     end
 
-    it "raises error on mistake" do
-      expect { config.http_headers = :a }.to raise_error(ArgumentError)
-    end
-  end
+    context "with non-array" do
+      let(:value) { :a }
 
-  context "cookies" do
-    it "is property configured" do
-      config.cookies = true
-
-      is_expected.to be_configured
-      expect(config.cookies).to eq true
+      it "raises error" do
+        expect { subject }.to raise_error(ArgumentError)
+      end
     end
 
-    it "raises error on mistake" do
-      expect { config.cookies = :a }.to raise_error(ArgumentError)
+    context "when filter already set" do
+      let(:value) { [:password] }
+
+      before do
+        config.filter = ActiveSupport::ParameterFilter.new(%i[passw])
+      end
+
+      it "raises error" do
+        expect { subject }.to raise_error(ArgumentError, /either 'fields' or 'filter'/)
+      end
     end
   end
 
-  context "query_string" do
-    it "is property configured" do
-      config.query_string = true
+  describe "#filter=" do
+    subject { config.filter = value }
 
-      is_expected.to be_configured
-      expect(config.query_string).to eq true
+    context "with ActiveSupport::ParameterFilter" do
+      let(:value) { ActiveSupport::ParameterFilter.new(%i[passw token code]) }
+
+      it "is properly configured" do
+        subject
+
+        expect(config).to be_configured
+        expect(config.filter).to equal(value)
+      end
     end
 
-    it "raises error on mistake" do
-      expect { config.query_string = :a }.to raise_error(ArgumentError)
+    context "with Sentry::Sanitizer::Filter" do
+      let(:value) { Sentry::Sanitizer::Filter.new([:password]) }
+
+      it "is properly configured" do
+        subject
+
+        expect(config).to be_configured
+        expect(config.filter).to equal(value)
+      end
+    end
+
+    context "with object missing filter methods" do
+      let(:value) { Object.new }
+
+      it "raises error" do
+        expect { subject }.to raise_error(ArgumentError, /filter must implement/)
+      end
+    end
+
+    context "when fields already set" do
+      let(:value) { ActiveSupport::ParameterFilter.new(%i[passw]) }
+
+      before do
+        config.fields = [:password]
+      end
+
+      it "raises error" do
+        expect { subject }.to raise_error(ArgumentError, /either 'fields' or 'filter'/)
+      end
     end
   end
 
-  context "breadcrumbs.json_data_fields" do
-    it "is property configured" do
-      config.breadcrumbs.json_data_fields = [:body]
+  describe "#http_headers=" do
+    subject { config.http_headers = value }
 
-      is_expected.to be_configured
-      expect(config.breadcrumbs.json_data_fields).to eq [:body]
+    context "with array" do
+      let(:value) { %w[HEADER1 HEADER2] }
+
+      it "is properly configured" do
+        subject
+
+        expect(config).to be_configured
+        expect(config.http_headers).to match_array(%w[HEADER1 HEADER2])
+      end
     end
 
-    it "raises error on mistake" do
-      expect { config.breadcrumbs.json_data_fields = :a }.to raise_error(ArgumentError)
+    context "with true" do
+      let(:value) { true }
+
+      it "is properly configured" do
+        subject
+
+        expect(config).to be_configured
+        expect(config.http_headers).to eq true
+      end
+    end
+
+    context "with invalid value" do
+      let(:value) { :a }
+
+      it "raises error" do
+        expect { subject }.to raise_error(ArgumentError)
+      end
+    end
+  end
+
+  describe "#cookies=" do
+    subject { config.cookies = value }
+
+    context "with true" do
+      let(:value) { true }
+
+      it "is properly configured" do
+        subject
+
+        expect(config).to be_configured
+        expect(config.cookies).to eq true
+      end
+    end
+
+    context "with invalid value" do
+      let(:value) { :a }
+
+      it "raises error" do
+        expect { subject }.to raise_error(ArgumentError)
+      end
+    end
+  end
+
+  describe "#query_string=" do
+    subject { config.query_string = value }
+
+    context "with true" do
+      let(:value) { true }
+
+      it "is properly configured" do
+        subject
+
+        expect(config).to be_configured
+        expect(config.query_string).to eq true
+      end
+    end
+
+    context "with invalid value" do
+      let(:value) { :a }
+
+      it "raises error" do
+        expect { subject }.to raise_error(ArgumentError)
+      end
+    end
+  end
+
+  describe "#breadcrumbs.json_data_fields=" do
+    subject { config.breadcrumbs.json_data_fields = value }
+
+    context "with array" do
+      let(:value) { [:body] }
+
+      it "is properly configured" do
+        subject
+
+        expect(config).to be_configured
+        expect(config.breadcrumbs.json_data_fields).to eq [:body]
+      end
+    end
+
+    context "with invalid value" do
+      let(:value) { :a }
+
+      it "raises error" do
+        expect { subject }.to raise_error(ArgumentError)
+      end
     end
   end
 end

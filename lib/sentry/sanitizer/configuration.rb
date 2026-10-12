@@ -74,9 +74,9 @@ module Sentry
 
       def filter=(filter)
         methods = Sanitizer::Filter.instance_methods(false)
-        matches = methods.all? { filter.respond_to?(it) }
+        implements = methods.all? { |method| filter.respond_to?(method) }
         raise ArgumentError, "specify either 'fields' or 'filter'" if fields
-        raise ArgumentError, "filter must implement #{methods.join(', ')}" unless matches
+        raise ArgumentError, "filter must implement #{methods.join(', ')}" unless implements
 
         @filter = filter
       end

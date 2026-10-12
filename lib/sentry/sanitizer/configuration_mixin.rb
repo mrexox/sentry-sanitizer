@@ -28,7 +28,7 @@ module Sentry
       #
       # @param [nil, #call] value
       #
-      def before_breadcrumb=(value) # rubocop:disable Metrics/CyclomaticComplexity
+      def before_breadcrumb=(value)
         raise ArgumentError, "before_breadcrumb must be callable (or nil to disable)" unless value.nil? || value == false || value.respond_to?(:call)
 
         return unless value

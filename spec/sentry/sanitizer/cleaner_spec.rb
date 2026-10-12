@@ -20,6 +20,8 @@ RSpec.describe Sentry::Sanitizer::Cleaner do
     end
   end
 
+  let(:parameter_filter) { ActiveSupport::ParameterFilter.new(%i[passw token code]) }
+
   describe "event" do
     let(:event) do
       Sentry::Event.new(configuration: Sentry.configuration).tap do |e|
@@ -28,9 +30,16 @@ RSpec.describe Sentry::Sanitizer::Cleaner do
     end
 
     shared_context "GET request" do
+      let(:sanitize_filter) { nil }
+      let(:extra_params) { {} }
+
       before do
         Sentry.init do |config|
-          config.sanitize.fields = [:password, "token"]
+          if sanitize_filter
+            config.sanitize.filter = sanitize_filter
+          else
+            config.sanitize.fields = [:password, "token"]
+          end
           config.sanitize.http_headers = ["Custom-Header"]
           config.sanitize.cookies = false
           config.sanitize.query_string = true
@@ -45,7 +54,7 @@ RSpec.describe Sentry::Sanitizer::Cleaner do
                                         "token" => "SECRET",
                                         "nonsecure" => "NONESECURE",
                                         "nested" => [{ "password" => "SECRET", "login" => "LOGIN" }]
-                                      },
+                                      }.merge(extra_params),
                                       "CONTENT_TYPE" => "application/json",
                                       "HTTP_CUSTOM-HEADER" => "secret1",
                                       "HTTP_CUSTOM-NONSECURE" => "NONSECURE",
@@ -64,9 +73,16 @@ RSpec.describe Sentry::Sanitizer::Cleaner do
     end
 
     shared_context "POST request" do
+      let(:sanitize_filter) { nil }
+      let(:extra_params) { {} }
+
       before do
         Sentry.init do |config|
-          config.sanitize.fields = [:password, "secret_token"]
+          if sanitize_filter
+            config.sanitize.filter = sanitize_filter
+          else
+            config.sanitize.fields = [:password, "secret_token"]
+          end
           config.sanitize.http_headers = %w[H-1 H-2]
           config.sanitize.cookies = true
           config.send_default_pii = true
@@ -80,7 +96,7 @@ RSpec.describe Sentry::Sanitizer::Cleaner do
                                         "secret_token" => "SECRET",
                                         "oops" => "OOPS",
                                         "hmm" => [{ "password" => "SECRET", "array" => "too" }]
-                                      },
+                                      }.merge(extra_params),
                                       "CONTENT_TYPE" => "application/json",
                                       "HTTP_H-1" => "secret1",
                                       "HTTP_H-2" => "secret2",
@@ -240,6 +256,44 @@ RSpec.describe Sentry::Sanitizer::Cleaner do
             )
           end
         end
+
+        context "with custom filter" do
+          let(:sanitize_filter) { parameter_filter }
+          let(:extra_params) { { "confirmation_password" => "SECRET", "access_token" => "SECRET" } }
+
+          it "filters data with given filter" do
+            subject
+
+            expect(event.request.data).to match a_hash_including(
+              "password" => Sentry::Sanitizer::Filter::DEFAULT_MASK,
+              "secret_token" => Sentry::Sanitizer::Filter::DEFAULT_MASK,
+              "confirmation_password" => Sentry::Sanitizer::Filter::DEFAULT_MASK,
+              "access_token" => Sentry::Sanitizer::Filter::DEFAULT_MASK,
+              "oops" => "OOPS",
+              "hmm" => [
+                a_hash_including(
+                  "password" => Sentry::Sanitizer::Filter::DEFAULT_MASK,
+                  "array" => "too"
+                )
+              ]
+            )
+            expect(event.request.headers).to match a_hash_including(
+              "H-1" => Sentry::Sanitizer::Filter::DEFAULT_MASK,
+              "H-2" => Sentry::Sanitizer::Filter::DEFAULT_MASK,
+              "H-3" => "secret3"
+            )
+            expect(event.request.cookies).to match a_hash_including(
+              "cookie1" => Sentry::Sanitizer::Filter::DEFAULT_MASK,
+              "cookie2" => Sentry::Sanitizer::Filter::DEFAULT_MASK,
+              "cookie3" => Sentry::Sanitizer::Filter::DEFAULT_MASK
+            )
+            # ParameterFilter matches partially, so "not_password" is masked too
+            expect(event.extra).to match a_hash_including(
+              password: Sentry::Sanitizer::Filter::DEFAULT_MASK,
+              not_password: Sentry::Sanitizer::Filter::DEFAULT_MASK
+            )
+          end
+        end
       end
     end
 
@@ -377,6 +431,45 @@ RSpec.describe Sentry::Sanitizer::Cleaner do
             )
           )
         end
+
+        context "with custom filter" do
+          let(:sanitize_filter) { parameter_filter }
+          let(:extra_params) { { "confirmation_password" => "SECRET", "access_token" => "SECRET", "code" => "SECRET" } }
+
+          it "cleans query string with given filter" do
+            subject
+
+            expected_query_string =
+              if SENTRY_7_OR_NEWER
+                {
+                  "password" => Sentry::Sanitizer::Filter::DEFAULT_MASK,
+                  "token" => Sentry::Sanitizer::Filter::DEFAULT_MASK,
+                  "nonsecure" => "NONESECURE",
+                  "nested" => [{ "password" => Sentry::Sanitizer::Filter::DEFAULT_MASK, "login" => "LOGIN" }],
+                  "confirmation_password" => Sentry::Sanitizer::Filter::DEFAULT_MASK,
+                  "access_token" => Sentry::Sanitizer::Filter::DEFAULT_MASK,
+                  "code" => Sentry::Sanitizer::Filter::DEFAULT_MASK
+                }
+              else
+                "password=[FILTERED]&token=[FILTERED]&nonsecure=NONESECURE&nested[][password]=[FILTERED]&nested[][login]=LOGIN" \
+                  "&confirmation_password=[FILTERED]&access_token=[FILTERED]&code=[FILTERED]"
+              end
+
+            expect(event_h).to match a_hash_including(
+              "request" => a_hash_including(
+                "headers" => a_hash_including(
+                  "Custom-header" => Sentry::Sanitizer::Filter::DEFAULT_MASK,
+                  "Custom-nonsecure" => "NONSECURE"
+                ),
+                "query_string" => expected_query_string
+              ),
+              "extra" => a_hash_including(
+                "password" => Sentry::Sanitizer::Filter::DEFAULT_MASK,
+                "not_password" => Sentry::Sanitizer::Filter::DEFAULT_MASK
+              )
+            )
+          end
+        end
       end
 
       context "POST request" do
@@ -420,41 +513,15 @@ RSpec.describe Sentry::Sanitizer::Cleaner do
       end
 
       context "when special mask provided" do
+        include_context "GET request"
+
         let(:mask) { "<<SECRET>>" }
 
         before do
-          Sentry.init do |config|
-            config.sanitize.fields = [:password, "token"]
-            config.sanitize.http_headers = ["Custom-Header"]
-            config.sanitize.cookies = true
-            config.sanitize.query_string = true
-            config.sanitize.mask = mask
-            config.send_default_pii = true
+          Sentry.get_current_client.configuration.sanitize.tap do |sanitize|
+            sanitize.cookies = true
+            sanitize.mask = mask
           end
-
-          Sentry.get_current_scope.set_rack_env(
-            Rack::MockRequest.env_for("/", {
-                                        method: "GET",
-                                        params: {
-                                          "password" => "SECRET",
-                                          "token" => "SECRET",
-                                          "nonsecure" => "NONESECURE",
-                                          "nested" => [{ "password" => "SECRET", "login" => "LOGIN" }]
-                                        },
-                                        "CONTENT_TYPE" => "application/json",
-                                        "HTTP_CUSTOM-HEADER" => "secret1",
-                                        "HTTP_CUSTOM-NONSECURE" => "NONSECURE",
-                                        "HTTP_AUTHORIZATION" => "token",
-                                        "HTTP_X_XSRF_TOKEN" => "xsrf=token",
-                                        Rack::RACK_REQUEST_COOKIE_HASH => {
-                                          "cookie1" => "wooo",
-                                          "cookie2" => "weee",
-                                          "cookie3" => "WoWoW"
-                                        }
-                                      })
-          )
-
-          Sentry.get_current_scope.apply_to_event(event)
         end
 
         it "uses given mask" do
@@ -528,14 +595,14 @@ RSpec.describe Sentry::Sanitizer::Cleaner do
           config.sanitize.fields = ["password"]
           config.sanitize.breadcrumbs.json_data_fields = [:body]
         end
-
-        subject
       end
 
       context "when the field has a nil value" do
         let(:breadcrumb) { Sentry::Breadcrumb.new(message: "test", data: { body: nil }) }
 
         it "returns the breadcrumb data as is" do
+          subject
+
           expect(breadcrumb.data).to eq({ body: nil })
         end
       end
@@ -544,6 +611,8 @@ RSpec.describe Sentry::Sanitizer::Cleaner do
         let(:breadcrumb) { Sentry::Breadcrumb.new(message: "test", data: { body: JSON.dump(password: "PASSWORD") }) }
 
         it "sanitizes the breadcrumb data" do
+          subject
+
           expect(breadcrumb.data[:body]).to eq(JSON.dump(password: Sentry::Sanitizer::Filter::DEFAULT_MASK))
         end
       end
@@ -552,6 +621,8 @@ RSpec.describe Sentry::Sanitizer::Cleaner do
         let(:breadcrumb) { Sentry::Breadcrumb.new(message: "test", data: { body: "not parseable JSON" }) }
 
         it "returns the breadcrumb data as is" do
+          subject
+
           expect(breadcrumb.data).to eq({ body: "not parseable JSON" })
         end
       end
@@ -560,8 +631,46 @@ RSpec.describe Sentry::Sanitizer::Cleaner do
         let(:breadcrumb) { Sentry::Breadcrumb.new(message: "test", data: "just a string") }
 
         it "returns the breadcrumb data as is" do
+          subject
+
           expect(breadcrumb.data).to eq("just a string")
         end
+      end
+    end
+
+    context "with custom filter and breadcrumbs configuration set" do
+      let(:breadcrumb) do
+        Sentry::Breadcrumb.new(
+          message: "test",
+          data: {
+            body: JSON.dump(
+              password: "SECRET",
+              confirmation_password: "SECRET",
+              access_token: "SECRET",
+              code: "SECRET",
+              login: "LOGIN"
+            )
+          }
+        )
+      end
+
+      before do
+        Sentry.init do |config|
+          config.sanitize.filter = parameter_filter
+          config.sanitize.breadcrumbs.json_data_fields = [:body]
+        end
+      end
+
+      it "sanitizes the breadcrumb data with given filter" do
+        subject
+
+        expect(JSON.parse(breadcrumb.data[:body])).to eq(
+          "password" => Sentry::Sanitizer::Filter::DEFAULT_MASK,
+          "confirmation_password" => Sentry::Sanitizer::Filter::DEFAULT_MASK,
+          "access_token" => Sentry::Sanitizer::Filter::DEFAULT_MASK,
+          "code" => Sentry::Sanitizer::Filter::DEFAULT_MASK,
+          "login" => "LOGIN"
+        )
       end
     end
   end
