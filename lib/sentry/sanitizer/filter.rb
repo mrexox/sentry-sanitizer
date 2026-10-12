@@ -44,10 +44,8 @@ module Sentry
           else
             value.map! { |v| sanitize_value(key, v) }
           end
-        when String
-          value
         else
-          mask
+          value
         end
       end
     end
