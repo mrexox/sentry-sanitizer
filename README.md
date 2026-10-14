@@ -21,16 +21,20 @@ Currently this gem provides following features
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'sentry-sanitizer', '>= 0.2.0'
+gem 'sentry-sanitizer', '~> 0.10.0'
 ```
 
-And then execute:
+And then in the terminal:
 
-    $ bundle
+```sh
+bundle install
+```
 
-Or install it yourself as:
+Or alternatively:
 
-    $ gem install sentry-sanitizer
+```sh
+gem install sentry-sanitizer
+```
 
 ## Usage
 
@@ -74,15 +78,15 @@ end
 
 Install dependencies
 
-    $ bin/setup
+    bin/setup
 
 Experiment with the code in IRB
 
-    $ bin/console
+    bin/console
 
 Run tests
 
-    $ bin/rake test
+    bin/rake test
 
 ## Contributing
 
