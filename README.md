@@ -1,4 +1,4 @@
-[![CI](https://github.com/mrexox/sentry-sanitizer/actions/workflows/ci-linux.yml/badge.svg)](https://github.com/mrexox/sentry-sanitizer/actions/workflows/ci-linux.yml)
+[![CI](https://github.com/mrexox/sentry-sanitizer/actions/workflows/ci.yml/badge.svg)](https://github.com/mrexox/sentry-sanitizer/actions/workflows/ci.yml)
 [![Gem Version](https://badge.fury.io/rb/sentry-sanitizer.svg)](https://badge.fury.io/rb/sentry-sanitizer)
 [![Coverage Status](https://coveralls.io/repos/github/mrexox/sentry-sanitizer/badge.svg?branch=master)](https://coveralls.io/github/mrexox/sentry-sanitizer?branch=master)
 

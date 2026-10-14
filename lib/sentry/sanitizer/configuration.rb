@@ -23,6 +23,18 @@ module Sentry
         event
       }
 
+      self.before_send_transaction = lambda { |event, _hint|
+        Sentry::Sanitizer::Cleaner.new(Sentry.configuration.sanitize).call(event)
+
+        event
+      }
+
+      self.before_send_check_in = lambda { |event, _hint|
+        Sentry::Sanitizer::Cleaner.new(Sentry.configuration.sanitize).call(event)
+
+        event
+      }
+
       self.before_breadcrumb = lambda { |breadcrumb, _hint|
         Sentry::Sanitizer::Cleaner.new(Sentry.configuration.sanitize).call(breadcrumb)
 

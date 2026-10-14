@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.10.0
+
+- Sanitize transaction events (`before_send_transaction`) and check-in events (`before_send_check_in`). Only `request` and `extra` are sanitized; span data is not
+- Allow multiple `before_send_transaction` and `before_send_check_in` hooks
+- Stop the `before_send` hook chain when a hook returns `nil`, so next hooks do not get `nil`
+
 ## 0.9.0
 
 - Add `filter` option to pass a custom filter, e.g. `ActiveSupport::ParameterFilter` [#25](https://github.com/mrexox/sentry-sanitizer/pull/25)

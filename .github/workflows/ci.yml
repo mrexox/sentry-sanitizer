@@ -1,4 +1,4 @@
-name: CI macos
+name: CI
 on:
   push:
   pull_request:
@@ -6,11 +6,12 @@ on:
 jobs:
   rspec:
     name: Unit tests
-    runs-on: macos-13
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
           - { ruby_version: 3.3, sentry_version: "~> 6.0" }
+          - { ruby_version: 3.3, sentry_version: "~> 7.0" }
           - { ruby_version: 3.4, sentry_version: "~> 6.0" }
           - { ruby_version: 3.4, sentry_version: "~> 7.0" }
           - { ruby_version: 4.0, sentry_version: "~> 6.0" }
