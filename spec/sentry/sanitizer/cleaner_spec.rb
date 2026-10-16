@@ -564,6 +564,55 @@ RSpec.describe Sentry::Sanitizer::Cleaner do
     end
   end
 
+  describe "transaction event" do
+    let(:event) do
+      transaction = Sentry::Transaction.new(name: "test", op: "test")
+      span = transaction.start_child(op: "http.client")
+      span.set_data("password", "SECRET")
+      span.set_data("nested", { "token" => "SECRET", "login" => "LOGIN" })
+      span.set_data("url", "http://example.com")
+      span.finish
+      transaction.set_timestamp(Time.now.to_f)
+
+      Sentry::TransactionEvent.new(configuration: Sentry.configuration, transaction: transaction)
+    end
+
+    let(:expected_span_data) do
+      {
+        "password" => Sentry::Sanitizer::Filter::DEFAULT_MASK,
+        "nested" => { "token" => Sentry::Sanitizer::Filter::DEFAULT_MASK, "login" => "LOGIN" },
+        "url" => "http://example.com"
+      }
+    end
+
+    before do
+      Sentry.init do |config|
+        config.sanitize.fields = %w[password token]
+      end
+    end
+
+    it "filters spans data" do
+      described_class.new(Sentry.configuration.sanitize).call(event)
+
+      expect(event.spans.size).to eq(1)
+      expect(event.spans.first[:data]).to match a_hash_including(expected_span_data)
+    end
+
+    it "filters spans data in Hash" do
+      hash = event.to_h
+      described_class.new(Sentry.configuration.sanitize).call(hash)
+
+      expect(hash[:spans].first[:data]).to match a_hash_including(expected_span_data)
+    end
+
+    it "filters spans data in Hash with stringified keys" do
+      hash = JSON.parse(JSON.dump(event.to_h))
+      described_class.new(Sentry.configuration.sanitize).call(hash)
+
+      expect(hash["spans"].first["data"]).to match a_hash_including(expected_span_data)
+    end
+  end
+
   describe "breadcrumb" do
     subject { described_class.new(Sentry.configuration.sanitize).call(breadcrumb) }
 

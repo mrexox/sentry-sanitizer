@@ -46,6 +46,7 @@ module Sentry
           event.request.query_string = sanitize_query_string(event.request.query_string)
         end
         event.extra = sanitize_data(event.extra)
+        sanitize_spans!(event.spans) if event.is_a?(Sentry::TransactionEvent)
       end
 
       def sanitize_hash!(event)
@@ -66,6 +67,8 @@ module Sentry
         elsif event[:extra]
           event[:extra] = sanitize_data(event[:extra])
         end
+
+        sanitize_spans!(event["spans"] || event[:spans])
       end
 
       def sanitize_breadcrumb!(breadcrumb)
@@ -102,6 +105,21 @@ module Sentry
                   :do_cookies,
                   :do_query_string,
                   :breadcrumbs_json_data_fields
+
+      # Sanitize data of each span (Span#to_h) in transaction events
+      def sanitize_spans!(spans)
+        return unless spans.is_a?(Array)
+
+        spans.each do |span|
+          next unless span.is_a?(Hash)
+
+          if span.key?("data")
+            span["data"] = sanitize_data(span["data"])
+          elsif span.key?(:data)
+            span[:data] = sanitize_data(span[:data])
+          end
+        end
+      end
 
       # Sanitize specified headers
       def sanitize_headers(headers)
