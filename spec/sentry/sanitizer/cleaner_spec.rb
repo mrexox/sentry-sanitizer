@@ -611,6 +611,14 @@ RSpec.describe Sentry::Sanitizer::Cleaner do
 
       expect(hash["spans"].first["data"]).to match a_hash_including(expected_span_data)
     end
+
+    it "filters spans data in Hash with frozen spans" do
+      hash = event.to_h
+      hash[:spans] = hash[:spans].map(&:freeze).freeze
+      described_class.new(Sentry.configuration.sanitize).call(hash)
+
+      expect(hash[:spans].first[:data]).to match a_hash_including(expected_span_data)
+    end
   end
 
   describe "breadcrumb" do
