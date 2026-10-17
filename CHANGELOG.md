@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.10.1
+
+- Sanitize `Sentry::TransactionEvent#spans` [#27](https://github.com/mrexox/sentry-sanitizer/pull/27)
+
 ## 0.10.0
 
 - Sanitize transaction events (`before_send_transaction`) and check-in events (`before_send_check_in`). Only `request` and `extra` are sanitized; span data is not

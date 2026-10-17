@@ -46,6 +46,7 @@ module Sentry
           event.request.query_string = sanitize_query_string(event.request.query_string)
         end
         event.extra = sanitize_data(event.extra)
+        event.spans = sanitize_data(event.spans) if event.is_a?(Sentry::TransactionEvent)
       end
 
       def sanitize_hash!(event)
@@ -65,6 +66,12 @@ module Sentry
           event["extra"] = sanitize_data(event["extra"])
         elsif event[:extra]
           event[:extra] = sanitize_data(event[:extra])
+        end
+
+        if event["spans"]
+          event["spans"] = sanitize_data(event["spans"])
+        elsif event[:spans]
+          event[:spans] = sanitize_data(event[:spans])
         end
       end
 
