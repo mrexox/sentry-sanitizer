@@ -93,8 +93,10 @@ module Sentry
 
       def sanitize_data(data)
         case data
-        when Hash, Array
+        when Hash
           filter.filter(data)
+        when Array
+          data.map { |element| sanitize_data(element) }
         else
           data
         end
