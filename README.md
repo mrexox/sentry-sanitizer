@@ -21,7 +21,7 @@ Currently this gem provides following features
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'sentry-sanitizer', '~> 0.10.0'
+gem 'sentry-sanitizer', '~> 0.10.2'
 ```
 
 And then in the terminal:
@@ -50,7 +50,7 @@ Sentry.init do |config|
   config.sanitize.fields = %w[password super_secret_token]
 
   # Use custom filter (e.g. from activesupport).
-  # Must implement #filter(array_or_hash) and #filter_param(key, value)
+  # Must implement #filter(hash) and #filter_param(key, value)
   # Don't set 'config.sanitize.fields' if using this.
   config.sanitize.filter = ActiveSupport::ParameterFilter.new(
     Rails.application.config.filter_parameters, mask: "[FILTERED]"

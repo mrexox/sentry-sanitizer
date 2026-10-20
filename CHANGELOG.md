@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.10.2
+
+- Fix span sanitizing with custom filter (ActiveSupport::ParameterFilter) [#28](https://github.com/mrexox/sentry-sanitizer/pull/28)
+
 ## 0.10.1
 
 - Sanitize `Sentry::TransactionEvent#spans` [#27](https://github.com/mrexox/sentry-sanitizer/pull/27)

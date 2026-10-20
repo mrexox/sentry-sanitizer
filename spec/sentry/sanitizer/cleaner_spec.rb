@@ -619,6 +619,35 @@ RSpec.describe Sentry::Sanitizer::Cleaner do
 
       expect(hash[:spans].first[:data]).to match a_hash_including(expected_span_data)
     end
+
+    context "with custom filter" do
+      before do
+        Sentry.init do |config|
+          config.sanitize.filter = parameter_filter
+        end
+      end
+
+      it "filters spans data" do
+        described_class.new(Sentry.configuration.sanitize).call(event)
+
+        expect(event.spans.size).to eq(1)
+        expect(event.spans.first[:data]).to match a_hash_including(expected_span_data)
+      end
+
+      it "filters spans data in Hash" do
+        hash = event.to_h
+        described_class.new(Sentry.configuration.sanitize).call(hash)
+
+        expect(hash[:spans].first[:data]).to match a_hash_including(expected_span_data)
+      end
+
+      it "filters spans data in Hash with stringified keys" do
+        hash = JSON.parse(JSON.dump(event.to_h))
+        described_class.new(Sentry.configuration.sanitize).call(hash)
+
+        expect(hash["spans"].first["data"]).to match a_hash_including(expected_span_data)
+      end
+    end
   end
 
   describe "breadcrumb" do
